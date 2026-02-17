@@ -1,0 +1,48 @@
+baseURL = 'https://d5n.xyz'
+languageCode = 'zh-CN'
+title = 'D5N'
+theme = 'PaperMod'
+
+[params]
+  author = 'Duran'
+  description = 'D5N Tech Space | AI · Agents · Automation'
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  
+  [params.profileMode]
+    enabled = true
+    title = 'D5N Tech Space'
+    subtitle = '探索 AI、智能体与自动化工具'
+    imageUrl = 'https://raw.githubusercontent.com/openduran/duranblog/main/static/avatar.png'
+    imageTitle = 'Duran'
+    
+    [[params.profileMode.buttons]]
+      name = '文章'
+      url = 'posts'
+    [[params.profileMode.buttons]]
+      name = '标签'
+      url = 'tags'
+
+[menu]
+  [[menu.main]]
+    identifier = 'posts'
+    name = '文章'
+    url = '/posts/'
+    weight = 10
+  [[menu.main]]
+    identifier = 'tags'
+    name = '标签'
+    url = '/tags/'
+    weight = 20
+  [[menu.main]]
+    identifier = 'about'
+    name = '关于'
+    url = '/about/'
+    weight = 30
+
+[taxonomies]
+  tag = 'tags'
+  category = 'categories'

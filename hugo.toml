@@ -16,6 +16,20 @@ theme = 'PaperMod'
   [params.analytics.google]
     measurementID = 'G-C6NHK7FMZ7'
   
+  # Giscus Comments
+  [params.giscus]
+    repo = "openduran/duranblog"
+    repoID = "R_kgDORSDJPQ"
+    category = "General"
+    categoryID = "DIC_kwDORSDJPc4C2tEr"
+    mapping = "pathname"
+    reactionsEnabled = "1"
+    emitMetadata = "0"
+    inputPosition = "bottom"
+    theme = "preferred_color_scheme"
+    lang = "zh-CN"
+    loading = "lazy"
+  
   [params.profileMode]
     enabled = true
     title = 'D5N Tech Space'

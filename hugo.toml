@@ -76,3 +76,12 @@ theme = 'PaperMod'
   [outputFormats.RSS]
     mediatype = "application/rss"
     baseName = "index"
+
+# SEO: Sitemap configuration
+[sitemap]
+  changefreq = 'weekly'
+  filename = 'sitemap.xml'
+  priority = 0.5
+
+# SEO: Enable robots.txt
+enableRobotsTXT = true

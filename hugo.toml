@@ -12,6 +12,9 @@ theme = 'PaperMod'
   ShowCodeCopyButtons = true
   ShowToc = true
   
+  # Enable comments by default
+  comments = true
+  
   # Google Analytics 4
   [params.analytics.google]
     measurementID = 'G-C6NHK7FMZ7'

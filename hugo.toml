@@ -12,6 +12,10 @@ theme = 'PaperMod'
   ShowCodeCopyButtons = true
   ShowToc = true
   
+  # Google Analytics 4
+  [params.analytics.google]
+    measurementID = 'G-C6NHK7FMZ7'
+  
   [params.profileMode]
     enabled = true
     title = 'D5N Tech Space'

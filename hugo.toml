@@ -34,7 +34,7 @@ theme = 'PaperMod'
     loading = "lazy"
   
   [params.profileMode]
-    enabled = true
+    enabled = false
     title = 'D5N Tech Space'
     subtitle = '探索 AI、智能体与自动化工具'
     imageUrl = 'https://raw.githubusercontent.com/openduran/duranblog/main/static/avatar.png'

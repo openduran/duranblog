@@ -1,11 +1,74 @@
 baseURL = 'https://www.d5n.xyz'
+defaultContentLanguage = 'zh'
+defaultContentLanguageInSubdir = false
 languageCode = 'zh-CN'
 title = 'D5N'
 theme = 'PaperMod'
 
+# 多语言配置
+[languages]
+  [languages.zh]
+    languageName = '中文'
+    languageCode = 'zh-CN'
+    weight = 1
+    [languages.zh.params]
+      subtitle = '探索 AI、智能体与自动化工具'
+      description = 'D5N Tech Space | AI · Agents · Automation'
+      keywords = ['AI', '智能体', '自动化', 'OpenClaw', '技术博客']
+    [languages.zh.menu]
+      [[languages.zh.menu.main]]
+        identifier = 'posts'
+        name = '文章'
+        url = '/posts/'
+        weight = 10
+      [[languages.zh.menu.main]]
+        identifier = 'tags'
+        name = '标签'
+        url = '/tags/'
+        weight = 20
+      [[languages.zh.menu.main]]
+        identifier = 'about'
+        name = '关于'
+        url = '/about/'
+        weight = 30
+      [[languages.zh.menu.main]]
+        identifier = 'rss'
+        name = '订阅'
+        url = '/index.xml'
+        weight = 40
+
+  [languages.en]
+    languageName = 'English'
+    languageCode = 'en-US'
+    weight = 2
+    [languages.en.params]
+      subtitle = 'Exploring AI, Agents & Automation'
+      description = 'D5N Tech Space | AI · Agents · Automation'
+      keywords = ['AI', 'Agents', 'Automation', 'OpenClaw', 'Tech Blog']
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = 'posts'
+        name = 'Posts'
+        url = '/en/posts/'
+        weight = 10
+      [[languages.en.menu.main]]
+        identifier = 'tags'
+        name = 'Tags'
+        url = '/en/tags/'
+        weight = 20
+      [[languages.en.menu.main]]
+        identifier = 'about'
+        name = 'About'
+        url = '/en/about/'
+        weight = 30
+      [[languages.en.menu.main]]
+        identifier = 'rss'
+        name = 'RSS'
+        url = '/en/index.xml'
+        weight = 40
+
 [params]
   author = 'Duran'
-  description = 'D5N Tech Space | AI · Agents · Automation'
   ShowReadingTime = true
   ShowPostNavLinks = true
   ShowBreadCrumbs = true
@@ -14,6 +77,9 @@ theme = 'PaperMod'
   
   # Enable comments by default
   comments = true
+  
+  # 启用多语言切换
+  ShowLanguageSwitch = true
   
   # Google Analytics 4
   [params.analytics.google]
@@ -46,28 +112,6 @@ theme = 'PaperMod'
     [[params.profileMode.buttons]]
       name = '标签'
       url = 'tags'
-
-[menu]
-  [[menu.main]]
-    identifier = 'posts'
-    name = '文章'
-    url = '/posts/'
-    weight = 10
-  [[menu.main]]
-    identifier = 'tags'
-    name = '标签'
-    url = '/tags/'
-    weight = 20
-  [[menu.main]]
-    identifier = 'about'
-    name = '关于'
-    url = '/about/'
-    weight = 30
-  [[menu.main]]
-    identifier = 'rss'
-    name = '订阅'
-    url = '/index.xml'
-    weight = 40
 
 [taxonomies]
   tag = 'tags'

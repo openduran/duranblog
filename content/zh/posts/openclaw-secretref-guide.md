@@ -1,7 +1,7 @@
 ---
 title: "OpenClaw API 密钥管理完全指南：从明文到 SecretRef"
 date: 2026-03-03T22:00:00+08:00
-draft: true
+draft: false
 tags: ["openclaw", "security", "secretref", "tutorial"]
 ---
 

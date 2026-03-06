@@ -1,7 +1,7 @@
 ---
 title: "OpenClaw Discord Bot 配置指南：解决 401 错误和离线问题"
 date: 2026-03-05T20:30:00+08:00
-draft: true
+draft: false
 tags: ["openclaw", "discord", "bot", " troubleshooting"]
 ---
 

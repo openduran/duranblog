@@ -254,11 +254,30 @@ openclaw gateway restart
 }
 ```
 
-### Q4: 如何查看 Tailscale 分配的域名？
+### Q4: 如何查看 Tailscale 分配的域名/主机名？
 
 ```bash
 tailscale status
-# 查看 "DNS name" 字段
+```
+
+输出示例：
+```
+100.x.x.x   your-hostname      your@email.com   linux   -
+```
+**your-hostname** 就是你需要的主机名。
+
+或者更直接：
+```bash
+tailscale ip -4 --hostname
+```
+
+**自定义主机名：**
+```bash
+# 启动时指定
+sudo tailscale up --hostname=my-openclaw-server
+
+# 或在 Tailscale 控制台改名
+# https://login.tailscale.com/admin/machines
 ```
 
 ### Q5: 手机如何连接？

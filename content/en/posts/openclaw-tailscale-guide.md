@@ -177,6 +177,33 @@ openclaw gateway restart
 
 No. Gateway can only bind to one mode. Use Tailscale Serve + install Tailscale on local devices.
 
+**Q: How do I find my Tailscale hostname?**
+
+```bash
+tailscale status
+```
+
+Example output:
+```
+100.x.x.x   your-hostname      your@email.com   linux   -
+```
+
+The **your-hostname** column is what you need.
+
+Or directly:
+```bash
+tailscale ip -4 --hostname
+```
+
+**Customize hostname:**
+```bash
+# On first login
+sudo tailscale up --hostname=my-openclaw-server
+
+# Or rename in Tailscale admin console:
+# https://login.tailscale.com/admin/machines
+```
+
 ---
 
 ## Summary

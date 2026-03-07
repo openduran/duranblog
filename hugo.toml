@@ -2,6 +2,7 @@ baseURL = 'https://www.d5n.xyz'
 defaultContentLanguage = 'zh'
 defaultContentLanguageInSubdir = false
 languageCode = 'zh-CN'
+hasCJKLanguage = true
 title = 'D5N'
 theme = 'PaperMod'
 
@@ -11,10 +12,12 @@ theme = 'PaperMod'
     languageName = '中文'
     languageCode = 'zh-CN'
     weight = 1
+    contentDir = 'content'
     [languages.zh.params]
       subtitle = '探索 AI、智能体与自动化工具'
       description = 'D5N Tech Space | AI · Agents · Automation'
       keywords = ['AI', '智能体', '自动化', 'OpenClaw', '技术博客']
+      mainSections = ['posts']
     [languages.zh.menu]
       [[languages.zh.menu.main]]
         identifier = 'posts'
@@ -41,10 +44,12 @@ theme = 'PaperMod'
     languageName = 'English'
     languageCode = 'en-US'
     weight = 2
+    contentDir = 'content/en'
     [languages.en.params]
       subtitle = 'Exploring AI, Agents & Automation'
       description = 'D5N Tech Space | AI · Agents · Automation'
       keywords = ['AI', 'Agents', 'Automation', 'OpenClaw', 'Tech Blog']
+      mainSections = ['en']
     [languages.en.menu]
       [[languages.en.menu.main]]
         identifier = 'posts'

@@ -49,7 +49,7 @@ theme = 'PaperMod'
       subtitle = 'Exploring AI, Agents & Automation'
       description = 'D5N Tech Space | AI · Agents · Automation'
       keywords = ['AI', 'Agents', 'Automation', 'OpenClaw', 'Tech Blog']
-      mainSections = ['en']
+      mainSections = ['posts']
     [languages.en.menu]
       [[languages.en.menu.main]]
         identifier = 'posts'

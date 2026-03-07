@@ -31,67 +31,8 @@
                 {{- $label_text -}}
             </a>
             {{- end }}
-            <div class="logo-switches">
-                {{- if (not site.Params.disableThemeToggle) }}
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-                {{- end }}
-                
-                {{- if (not site.Params.disableLangToggle) }}
-                    {{- $lang := .Lang}}
-                    {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
-                    {{- with site.Home.Translations }}
-                    <div class="lang-dropdown">
-                        {{- if $separator }}<span class="lang-separator">|</span>{{ end }}
-                        <button class="lang-dropdown-btn" aria-haspopup="true" aria-expanded="false">
-                            {{- if (and site.Params.displayFullLangName ($.Site.Language.LanguageName)) }}
-                                {{- $.Site.Language.LanguageName | emojify -}}
-                            {{- else }}
-                                {{- $.Site.Language.Lang | upper -}}
-                            {{- end -}}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                        </button>
-                        <ul class="lang-dropdown-content">
-                            {{- range . -}}
-                            <li>
-                                <a href="{{- .Permalink -}}" 
-                                   title="{{ .Language.Params.languageAltTitle | default (.Language.LanguageName | emojify) | default (.Lang | title) }}"
-                                   aria-label="{{ .Language.LanguageName | default (.Lang | title) }}"
-                                   {{- if eq $lang .Lang }} class="active-lang" {{- end }}>
-                                    {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}
-                                        {{- .Language.LanguageName | emojify -}}
-                                    {{- else }}
-                                        {{- .Lang | upper -}}
-                                    {{- end -}}
-                                </a>
-                            </li>
-                            {{- end}}
-                        </ul>
-                    </div>
-                    {{- end }}
-                {{- end }}
-            </div>
         </div>
+        
         {{- $currentPage := . }}
         <ul id="menu">
             {{- range site.Menus.main }}
@@ -121,35 +62,118 @@
             </li>
             {{- end }}
         </ul>
+        
+        <div class="nav-right">
+            {{- if (not site.Params.disableThemeToggle) }}
+            <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+            {{- end }}
+            
+            {{- if (not site.Params.disableLangToggle) }}
+                {{- $lang := .Lang}}
+                {{- with site.Home.Translations }}
+                <div class="lang-dropdown">
+                    <button class="lang-dropdown-btn" aria-haspopup="true" aria-expanded="false">
+                        {{- if (and site.Params.displayFullLangName ($.Site.Language.LanguageName)) }}
+                            {{- $.Site.Language.LanguageName | emojify -}}
+                        {{- else }}
+                            {{- $.Site.Language.Lang | upper -}}
+                        {{- end -}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <ul class="lang-dropdown-content">
+                        {{- range . -}}
+                        <li>
+                            <a href="{{- .Permalink -}}" 
+                               title="{{ .Language.Params.languageAltTitle | default (.Language.LanguageName | emojify) | default (.Lang | title) }}"
+                               aria-label="{{ .Language.LanguageName | default (.Lang | title) }}"
+                               {{- if eq $lang .Lang }} class="active-lang" {{- end }}>
+                                {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}
+                                    {{- .Language.LanguageName | emojify -}}
+                                {{- else }}
+                                    {{- .Lang | upper -}}
+                                {{- end -}}
+                            </a>
+                        </li>
+                        {{- end}}
+                    </ul>
+                </div>
+                {{- end }}
+            {{- end }}
+        </div>
     </nav>
 </header>
 
 <style>
+/* 导航栏布局 */
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+
+.logo {
+    flex-shrink: 0;
+}
+
+#menu {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
 /* 语言下拉菜单样式 */
 .lang-dropdown {
     position: relative;
     display: inline-block;
 }
 
-.lang-separator {
-    margin: 0 8px;
-    color: var(--secondary);
-}
-
 .lang-dropdown-btn {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px 8px;
+    padding: 6px 10px;
     font-size: 14px;
     color: var(--primary);
     display: flex;
     align-items: center;
     gap: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
 }
 
 .lang-dropdown-btn:hover {
-    color: var(--secondary);
+    background-color: var(--code-bg);
 }
 
 .lang-dropdown-btn svg {
@@ -202,8 +226,38 @@
     font-weight: 500;
 }
 
+/* 主题切换按钮样式 */
+#theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    color: var(--primary);
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#theme-toggle:hover {
+    background-color: var(--code-bg);
+}
+
 /* 移动端适配 */
 @media (max-width: 768px) {
+    .nav {
+        flex-wrap: wrap;
+    }
+    
+    #menu {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 10px;
+    }
+    
+    .nav-right {
+        margin-left: auto;
+    }
+    
     .lang-dropdown-content {
         right: 0;
         left: auto;

@@ -79,12 +79,10 @@ theme = 'PaperMod'
   ShowBreadCrumbs = true
   ShowCodeCopyButtons = true
   ShowToc = true
+  disableLangToggle = false
   
   # Enable comments by default
   comments = true
-  
-  # 启用多语言切换
-  ShowLanguageSwitch = true
   
   # Google Analytics 4
   [params.analytics.google]

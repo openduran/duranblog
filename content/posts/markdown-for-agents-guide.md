@@ -1,140 +1,116 @@
 ---
-title: "实现 Cloudflare Markdown for Agents 效果：为 AI 优化你的内容输出"
+title: "利用 Cloudflare Markdown for Agents 优化 AI 内容抓取"
 date: 2026-03-08T22:00:00+08:00
 draft: false
-tags: ["cloudflare", "markdown-for-agents", "ai", "hugo", "optimization"]
+tags: ["cloudflare", "markdown-for-agents", "ai", "web-scraping", "token-optimization"]
 categories: ["技术教程"]
-description: "学习如何实现 Cloudflare Markdown for Agents 效果，让 AI 更高效地抓取和理解你的内容，节省 80% token 消耗。包含 Hugo 配置和实用工具。"
+description: "学习如何利用 Cloudflare Markdown for Agents 功能，让 AI Agent 高效抓取网页内容，节省 80% token 消耗。包含完整工具代码和实现方法。"
 ---
 
-## 背景：AI 时代的内容消费变革
+## 背景：AI 抓取的痛点
 
-Cloudflare 最近推出了 **Markdown for Agents** 功能，这是一项针对 AI 时代的创新优化。简单来说，当 AI Agent（如 ChatGPT、Claude 等）抓取网页内容时，网站可以返回 Markdown 格式而非 HTML，从而大幅减少 token 消耗。
+当你让 AI Agent 去抓取网页内容时，通常会遇到这些问题：
 
-**效果有多显著？**
+- **HTML 噪音太多** - 导航栏、广告、侧边栏、脚本、样式...
+- **Token 消耗巨大** - 2,000 字的正文可能需要 15,000+ tokens 的 HTML
+- **解析困难** - AI 需要从复杂 HTML 中提取有用信息
+- **成本高** - 按 token 付费的模型下，这直接意味着钱
+
+**Cloudflare Markdown for Agents** 就是为了解决这个问题而生的。
+
+---
+
+## 什么是 Cloudflare Markdown for Agents？
+
+这是 Cloudflare 在 2026 年 2 月推出的功能。当 AI Agent 抓取启用了此功能的网站时，Cloudflare 会自动将 HTML 转换为 Markdown 返回。
+
+### 效果有多显著？
 
 根据 Cloudflare 官方数据：
 - 一篇博客文章在 HTML 格式下约 **16,180 tokens**
 - 转换为 Markdown 后仅 **3,150 tokens**
 - **节省约 80% 的 token 消耗**
 
-这对于依赖大模型处理网页内容的应用来说，意味着显著的成本降低和效率提升。
-
----
-
-## Cloudflare Markdown for Agents 是什么？
-
 ### 工作原理
 
-当 AI Agent 发送 HTTP 请求时，如果请求头包含：
+当 AI Agent 发送 HTTP 请求时，在请求头中添加：
 
 ```
 Accept: text/markdown
 ```
 
-Cloudflare 会在边缘节点实时将 HTML 转换为 Markdown，然后返回给 AI Agent。
+如果网站启用了 Cloudflare Markdown for Agents，Cloudflare 会在边缘节点实时将 HTML 转换为 Markdown，然后返回给 AI Agent。
 
-**核心优势：**
+**返回的内容：**
 - ✅ 自动去除 HTML 标签、CSS、JavaScript
 - ✅ 保留内容的语义结构（标题、列表、链接等）
 - ✅ AI 更容易解析，减少噪声干扰
 - ✅ 大幅减少 token 消耗
 
-### 限制条件
-
-**必须满足：**
-1. 网站使用 Cloudflare CDN（橙云开启）
-2. Cloudflare 计划为 Pro 及以上（$20/月起）
-3. 需要手动在后台开启功能
-
-**对于 Free 计划用户：** 无法使用官方功能，但可以通过其他方式实现类似效果。
-
 ---
 
-## 替代方案：为每篇文章生成 Markdown 版本
+## 实战：如何让 AI Agent 抓取 Markdown 格式
 
-既然 Cloudflare 的官方功能需要付费，我们可以用自己的方式实现类似效果。核心思路是：**让每篇文章同时提供 HTML 和 Markdown 两种格式**。
+无论目标网站是否启用了 Cloudflare Markdown for Agents，你都可以通过以下方法优化抓取效果。
 
-### 以 Hugo 为例
+### 方法 1：请求 Markdown 格式（如果网站支持）
 
-如果你使用 Hugo 静态网站生成器，可以通过以下方式实现：
+最简单的做法是在 HTTP 请求头中声明接受 Markdown 格式：
 
-#### 步骤 1：配置输出格式
+```python
+import requests
 
-在 `hugo.toml` 中添加 Markdown 输出配置：
+headers = {
+    'Accept': 'text/markdown, text/html;q=0.8'
+}
 
-```toml
-[outputs]
-  home = ["HTML", "RSS", "JSON"]
-  section = ["HTML", "RSS"]
-  page = ["HTML", "Markdown"]  # 关键：为每篇文章生成 Markdown
+response = requests.get('https://example.com/article/', headers=headers)
 
-[outputFormats]
-  [outputFormats.RSS]
-    mediatype = "application/rss"
-    baseName = "index"
-  
-  [outputFormats.Markdown]
-    mediatype = "text/markdown"
-    baseName = "index"
-    isPlainText = true
+# 检查返回的内容类型
+if 'markdown' in response.headers.get('Content-Type', ''):
+    print("✅ 获取到 Markdown 格式")
+    content = response.text
+else:
+    print("ℹ️ 返回 HTML，需要转换")
+    content = html_to_markdown(response.text)
 ```
 
-#### 步骤 2：创建 Markdown 模板
+**判断网站是否支持：**
+- 如果返回的 `Content-Type` 包含 `text/markdown`，说明支持
+- 目前支持此功能的网站还不多，但会逐渐增加
 
-创建 `layouts/_default/single.md`：
+### 方法 2：尝试 Markdown 版本 URL
 
-```markdown
----
-title: "{{ .Title }}"
-date: {{ .Date.Format "2006-01-02T15:04:05-07:00" }}
-author: "{{ .Params.author | default .Site.Params.author }}"
-categories: [{{ range .Params.categories }}"{{ . }}"{{ end }}]
-tags: [{{ range .Params.tags }}"{{ . }}"{{ end }}]
----
+一些网站会主动提供 Markdown 版本，通常的 URL 模式：
 
-{{ .RawContent }}
+```
+https://example.com/posts/article-title/index.md
+https://example.com/posts/article-title.md
+https://example.com/api/content/article-title?format=md
 ```
 
-#### 步骤 3：构建并验证
+**抓取策略：**
+1. 先尝试 `.md` 或 `/index.md` 后缀的 URL
+2. 如果不存在，回退到普通 HTML 抓取
+3. 将 HTML 转换为 Markdown
 
-运行 Hugo 构建：
+### 方法 3：使用 Smart Fetch 工具
 
-```bash
-hugo --gc
-```
+我编写了一个完整的工具，自动完成上述流程：
 
-构建完成后，每篇文章会同时生成：
-- `index.html` - HTML 版本（人类阅读）
-- `index.md` - Markdown 版本（AI 阅读）
+**`smart_fetch.py` 核心功能：**
+- 优先请求 Markdown 格式
+- 自动检测返回类型
+- 如果返回 HTML，自动转换为 Markdown
+- 提取正文内容，去除导航和广告
 
-**访问方式：**
-- HTML: `https://example.com/posts/article-title/`
-- Markdown: `https://example.com/posts/article-title/index.md`
-
-### 其他平台的思路
-
-如果你不使用 Hugo，核心思路是一样的：
-- **WordPress**：使用插件生成 Markdown 版本，或通过 URL 参数提供
-- **Next.js/Gatsby**：在构建时生成 `.md` 文件
-- **Docusaurus/VitePress**：本身就有 Markdown 源文件，可直接提供访问
-- **自建系统**：在发布文章时同时写入 HTML 和 Markdown 两个文件
-
----
-
-## 配套工具：Smart Fetch
-
-为了让 AI Agent 更好地利用这个功能，我创建了一个智能抓取工具。
-
-### 完整源码
-
-**`smart_fetch.py`**：
+**完整源码：**
 
 ```python
 #!/usr/bin/env python3
 """
-Smart Web Fetch with Markdown for Agents Support
-支持 Cloudflare Markdown for Agents 功能
+Smart Fetch - 智能网页抓取工具
+支持 Cloudflare Markdown for Agents
 自动检测并处理 Markdown/HTML 响应
 """
 
@@ -144,8 +120,9 @@ import urllib.error
 from html.parser import HTMLParser
 import re
 
+
 class HTMLToMarkdown(HTMLParser):
-    """简单的 HTML 转 Markdown 转换器"""
+    """HTML 转 Markdown 转换器"""
     
     def __init__(self):
         super().__init__()
@@ -229,9 +206,10 @@ class HTMLToMarkdown(HTMLParser):
 def smart_fetch(url, max_chars=5000):
     """智能抓取网页内容"""
     
+    # 构建请求头 - 优先请求 Markdown
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible; AI-Agent/1.0; +https://www.d5n.xyz)',
-        'Accept': 'text/markdown, text/plain;q=0.9, text/html;q=0.8, application/xhtml+xml;q=0.8',
+        'Accept': 'text/markdown, text/plain;q=0.9, text/html;q=0.8',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         'Accept-Encoding': 'identity',
         'Connection': 'keep-alive',
@@ -252,16 +230,20 @@ def smart_fetch(url, max_chars=5000):
                 except:
                     content = raw_data.decode('utf-8', errors='ignore')
             
+            # 检查是否返回了 Markdown
             if 'markdown' in content_type:
-                print(f"✅ 获取到 Markdown 格式", file=sys.stderr)
+                print(f"✅ 获取到 Markdown 格式 (Content-Type: {content_type})", file=sys.stderr)
                 return content[:max_chars]
             
+            # 如果是纯文本
             if 'text/plain' in content_type:
                 return content[:max_chars]
             
+            # 如果是 HTML，转换为 Markdown
             print(f"🔄 返回 HTML，转换为 Markdown", file=sys.stderr)
             converter = HTMLToMarkdown()
             
+            # 提取 body 内容
             body_match = re.search(r'<body[^>]*>(.*?)</body>', content, re.DOTALL | re.IGNORECASE)
             if body_match:
                 body_content = body_match.group(1)
@@ -288,35 +270,23 @@ if __name__ == "__main__":
     print(smart_fetch(url, max_chars))
 ```
 
-**使用方式：**
+**使用示例：**
 
 ```bash
-# 抓取 Markdown 版本（如果可用）
-python3 smart_fetch.py "https://example.com/posts/article/index.md"
+# 抓取网页，自动处理 Markdown/HTML
+python3 smart_fetch.py "https://example.com/article/"
 
-# 普通抓取（自动处理）
-python3 smart_fetch.py "https://example.com/posts/article/"
+# 限制返回字符数
+python3 smart_fetch.py "https://example.com/article/" 3000
 ```
 
 ---
 
-## 进阶：搜索+抓取一体化工具
+## 进阶：搜索 + 抓取一体化
 
-为了更方便地使用搜索+抓取功能，我将 SearXNG 搜索和 Smart Fetch 组合成了一个完整的工具链。
+在实际应用中，通常需要先搜索，再抓取详细内容。我将 SearXNG 搜索和 Smart Fetch 组合成了一个完整的工具链。
 
-### 完整源码
-
-**`search-and-fetch.sh`**：
-
-```bash
-#!/bin/bash
-# Search and Fetch - SearXNG + Smart Fetch 组合工具
-
-cd "$(dirname "$0")"
-python3 search_and_fetch.py "$@"
-```
-
-**`search_and_fetch.py`**（核心代码）：
+**`search_and_fetch.py` 完整源码：**
 
 ```python
 #!/usr/bin/env python3
@@ -327,6 +297,7 @@ SearXNG + Smart Fetch 组合工具
 
 import sys
 import urllib.request
+import urllib.error
 import urllib.parse
 import json
 import subprocess
@@ -365,7 +336,16 @@ def smart_fetch(url, max_chars=3000):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 search_and_fetch.py '搜索关键词' [结果数量] [brief|full]")
+        print("""Usage: python3 search_and_fetch.py "搜索关键词" [结果数量] [brief|full]
+
+Options:
+  结果数量    - 搜索返回的结果数 (默认: 5)
+  抓取深度    - brief(摘要) | full(全文) (默认: brief)
+
+Examples:
+  python3 search_and_fetch.py "OpenClaw 教程"
+  python3 search_and_fetch.py "AI 新闻" 3 full
+""")
         sys.exit(1)
     
     query = sys.argv[1]
@@ -428,7 +408,7 @@ if __name__ == "__main__":
 | 方式 | Content-Type | Token 数量 | 效果 |
 |------|-------------|-----------|------|
 | 普通 HTML | text/html | ~5,000 | 包含导航、样式等噪声 |
-| Markdown 版本 | text/markdown | ~1,000 | 仅保留正文内容 |
+| Markdown 格式 | text/markdown | ~1,000 | 仅保留正文内容 |
 | **节省** | - | **~80%** | ✅ 显著优化 |
 
 ### 对 AI Agent 的好处
@@ -440,66 +420,61 @@ if __name__ == "__main__":
 
 ---
 
-## 适用场景
+## 附：如何让网站支持 Markdown 格式
 
-### 推荐启用的情况
+如果你想让自己的网站也支持 Markdown for Agents，以下是实现方法。
 
-- ✅ 技术博客、文档站点
-- ✅ 内容聚合平台
-- ✅ AI 助手需要频繁抓取的网站
-- ✅ 需要优化 SEO 的站点（AI 搜索越来越重要）
+### 以 Hugo 为例
 
-### 实际应用案例
+在 `hugo.toml` 中配置：
 
-**场景 1：AI 助手回答实时问题**
-```
-用户：最新的人工智能新闻是什么？
-AI：让我搜索一下... → 抓取 Markdown 版本 → 生成回答
-```
+```toml
+[outputs]
+  page = ["HTML", "Markdown"]
 
-**场景 2：内容分析汇总**
-```
-研究人员：分析这 10 篇论文的共同点
-AI：抓取每篇的 Markdown 版本 → 分析结构 → 生成报告
+[outputFormats.Markdown]
+  mediatype = "text/markdown"
+  baseName = "index"
+  isPlainText = true
 ```
 
-**场景 3：自动化监控**
+创建 `layouts/_default/single.md` 模板：
+
+```markdown
+---
+title: "{{ .Title }}"
+date: {{ .Date }}
+---
+
+{{ .RawContent }}
 ```
-定时任务：检查技术博客更新 → 抓取 Markdown → 发送摘要
-```
+
+构建后，每篇文章会同时生成 `index.html` 和 `index.md`。
+
+### 其他平台的思路
+
+- **WordPress**：使用插件生成 Markdown 版本
+- **Next.js/Gatsby**：在构建时生成 `.md` 文件
+- **Docusaurus/VitePress**：本身 Markdown 源文件，直接提供访问
+- **自建系统**：发布时同时写入 HTML 和 Markdown
 
 ---
 
-## 总结与展望
+## 总结
 
-### 今天完成的内容
+### 核心要点
 
-1. ✅ 分析了 Cloudflare Markdown for Agents 的工作原理
-2. ✅ 实现了为每篇文章生成 Markdown 版本的替代方案
-3. ✅ 创建了 Smart Fetch 智能抓取工具（附完整源码）
-4. ✅ 打包了搜索+抓取组合工具（附完整源码）
+1. **请求头是关键** - 使用 `Accept: text/markdown` 请求 Markdown 格式
+2. **尝试 Markdown URL** - 部分网站提供 `/index.md` 格式的直接访问
+3. **自动转换兜底** - 使用 Smart Fetch 工具自动处理 HTML→Markdown 转换
+4. **组合工具提效** - 搜索+抓取一体化，完整工作流
 
-### 给网站管理者的建议
+### 适用场景
 
-**如果你有 Cloudflare Pro：**
-- 直接开启官方功能，最简单
-- 监控效果，优化内容结构
-
-**如果你使用 Free 计划：**
-- 为自己的网站生成 Markdown 版本
-- 引导 AI Agent 使用 `/index.md` 路径
-- 长期来看，这有助于 AI 搜索优化
-
-### 未来趋势
-
-随着 AI Agent 的普及，**AI 友好的内容格式**将变得越来越重要：
-
-- 结构化数据（Schema.org）
-- 机器可读的元数据
-- 清晰的语义标记
-- Markdown 等轻量级格式
-
-**提前布局，让你的内容在 AI 时代更具竞争力。**
+- ✅ AI 助手实时问答（需要抓取外部资料）
+- ✅ 内容聚合和分析（批量处理文章）
+- ✅ 自动化监控（定期检查更新）
+- ✅ 研究辅助（快速获取干净内容）
 
 ---
 

@@ -1,129 +1,115 @@
 ---
-title: "Building AI-Friendly Content: How to Cut Token Costs by 80%"
+title: "Leveraging Cloudflare Markdown for Agents: Optimize AI Content Fetching"
 date: 2026-03-08T22:00:00+08:00
 draft: false
-tags: ["cloudflare", "markdown-for-agents", "ai", "hugo", "token-optimization"]
+tags: ["cloudflare", "markdown-for-agents", "ai", "web-scraping", "token-optimization"]
 categories: ["Tutorials"]
-description: "Learn how to implement Cloudflare's Markdown for Agents feature on your own site, reducing AI token consumption by 80% and making your content more accessible to agents."
+description: "Learn how to leverage Cloudflare Markdown for Agents to optimize AI content fetching, reducing token consumption by 80%. Includes complete tool source code and implementation methods."
 ---
 
-## The Problem: HTML is Wasteful for AI
+## The Problem: Pain Points of AI Web Scraping
 
-Here's something that became obvious once I started building AI agents: **HTML is terrible for machine consumption**.
+When you ask an AI Agent to fetch web content, you typically encounter these issues:
 
-Think about what happens when an AI agent tries to read a typical blog post:
-- It downloads the HTML (navigation, sidebars, ads, scripts, styles)
-- It has to parse through all the markup
-- It extracts the actual content
-- Finally, it can process what matters
+- **Too much HTML noise** - Navigation bars, ads, sidebars, scripts, styles...
+- **Massive token consumption** - 2,000 words of content might require 15,000+ tokens of HTML
+- **Difficult parsing** - AI needs to extract useful info from complex HTML
+- **High costs** - With token-based pricing, this directly means money
 
-A blog post with 2,000 words of actual content might require 15,000+ tokens in HTML format. That's expensive when you're paying per token.
+**Cloudflare Markdown for Agents** was created to solve this problem.
 
 ---
 
-## Cloudflare's Solution
+## What is Cloudflare Markdown for Agents?
 
-Enter **Markdown for Agents**.
+Launched by Cloudflare in February 2026, this feature automatically converts HTML to Markdown when AI Agents scrape websites that have it enabled.
 
-Cloudflare recently launched this feature that automatically converts HTML to Markdown when AI agents request your content. The numbers are impressive:
+### How Significant is the Effect?
 
-> **16,180 tokens** (HTML) → **3,150 tokens** (Markdown)
-> 
-> **~80% reduction**
+According to Cloudflare's official data:
+- A blog post in HTML format: ~**16,180 tokens**
+- Converted to Markdown: only ~**3,150 tokens**
+- **~80% reduction in token consumption**
 
 ### How It Works
 
-When an AI crawler sends a request with this header:
+When an AI Agent sends an HTTP request with this header:
 
 ```
 Accept: text/markdown
 ```
 
-Cloudflare intercepts it, converts your HTML to clean Markdown at the edge, and serves that instead.
+If the website has Cloudflare Markdown for Agents enabled, Cloudflare converts the HTML to Markdown at the edge and returns it to the AI Agent.
 
-**The result:** AI agents get exactly what they need—structured content without the presentation layer.
-
----
-
-## The Catch: Pro Plans Only
-
-Here's where it gets frustrating. This feature requires:
-- Cloudflare Pro ($20/month) or higher
-- Orange-cloud enabled (traffic going through Cloudflare)
-- Manual activation in dashboard
-
-For hobby projects or Free plan users, this isn't accessible.
-
-**So I built an alternative.**
+**The returned content:**
+- ✅ Automatically removes HTML tags, CSS, JavaScript
+- ✅ Preserves semantic structure (headings, lists, links, etc.)
+- ✅ Easier for AI to parse, less noise
+- ✅ Significantly reduces token consumption
 
 ---
 
-## DIY: Generate Markdown Versions for Your Content
+## Practical: How to Make AI Agents Fetch Markdown Format
 
-Since Cloudflare's official feature requires a paid plan, we can achieve similar results by providing both HTML and Markdown formats ourselves. The core idea: **make every article available in both formats**.
+Regardless of whether the target website has Cloudflare Markdown for Agents enabled, you can optimize your scraping using the following methods.
 
-### Example: Hugo Implementation
+### Method 1: Request Markdown Format (If Supported)
 
-If you're using Hugo static site generator, here's how to do it:
+The simplest approach is to declare in the HTTP request header that you accept Markdown format:
 
-#### Step 1: Configure Output Formats
+```python
+import requests
 
-Add this to your `hugo.toml`:
+headers = {
+    'Accept': 'text/markdown, text/html;q=0.8'
+}
 
-```toml
-[outputs]
-  page = ["HTML", "Markdown"]
+response = requests.get('https://example.com/article/', headers=headers)
 
-[outputFormats.Markdown]
-  mediatype = "text/markdown"
-  baseName = "index"
-  isPlainText = true
+# Check the returned content type
+if 'markdown' in response.headers.get('Content-Type', ''):
+    print("✅ Got Markdown format")
+    content = response.text
+else:
+    print("ℹ️ Got HTML, needs conversion")
+    content = html_to_markdown(response.text)
 ```
 
-#### Step 2: Create a Markdown Template
+**Check if website supports it:**
+- If the returned `Content-Type` contains `text/markdown`, it's supported
+- Currently, not many websites support this, but the number is growing
 
-Create `layouts/_default/single.md`:
+### Method 2: Try Markdown Version URLs
 
-```markdown
----
-title: "{{ .Title }}"
-date: {{ .Date }}
----
+Some websites actively provide Markdown versions, typically with these URL patterns:
 
-{{ .RawContent }}
+```
+https://example.com/posts/article-title/index.md
+https://example.com/posts/article-title.md
+https://example.com/api/content/article-title?format=md
 ```
 
-#### Step 3: Access Patterns
+**Scraping strategy:**
+1. First try URLs with `.md` or `/index.md` suffix
+2. If not found, fall back to regular HTML scraping
+3. Convert HTML to Markdown
 
-Your content is now available at:
+### Method 3: Use the Smart Fetch Tool
 
-| Format | URL |
-|--------|-----|
-| HTML | `/posts/my-article/` |
-| Markdown | `/posts/my-article/index.md` |
+I've written a complete tool that automates the above workflow:
 
-### For Other Platforms
+**`smart_fetch.py` core features:**
+- Prioritizes Markdown format requests
+- Automatically detects return type
+- If HTML is returned, automatically converts to Markdown
+- Extracts main content, removes navigation and ads
 
-If you don't use Hugo, the approach is the same:
-- **WordPress**: Use plugins to generate Markdown versions or provide via URL parameters
-- **Next.js/Gatsby**: Generate `.md` files at build time
-- **Docusaurus/VitePress**: Already Markdown-based, just provide direct access
-- **Custom systems**: Write both HTML and Markdown versions when publishing
-
----
-
-## Making It Useful: Smart Fetch
-
-Generating Markdown is half the battle. You also need tools that can take advantage of it.
-
-### Complete Source Code
-
-**`smart_fetch.py`**:
+**Complete source code:**
 
 ```python
 #!/usr/bin/env python3
 """
-Smart Web Fetch with Markdown for Agents Support
+Smart Fetch - Intelligent Web Scraping Tool
 Supports Cloudflare Markdown for Agents
 Auto-detects and handles Markdown/HTML responses
 """
@@ -134,8 +120,9 @@ import urllib.error
 from html.parser import HTMLParser
 import re
 
+
 class HTMLToMarkdown(HTMLParser):
-    """Simple HTML to Markdown converter"""
+    """HTML to Markdown converter"""
     
     def __init__(self):
         super().__init__()
@@ -278,35 +265,23 @@ if __name__ == "__main__":
     print(smart_fetch(url, max_chars))
 ```
 
-**Usage:**
+**Usage examples:**
 
 ```bash
-# Try to get Markdown version
-python3 smart_fetch.py "https://example.com/posts/article/index.md"
+# Fetch web page, auto-handle Markdown/HTML
+python3 smart_fetch.py "https://example.com/article/"
 
-# Or let it figure out the best format
-python3 smart_fetch.py "https://example.com/posts/article/"
+# Limit returned characters
+python3 smart_fetch.py "https://example.com/article/" 3000
 ```
 
 ---
 
-## The Complete Workflow: Search + Fetch
+## Advanced: Search + Fetch Integration
 
-To make this actually useful, I combined search and fetch into a single tool.
+In practice, you usually need to search first, then fetch detailed content. I've combined SearXNG search and Smart Fetch into a complete tool chain.
 
-### Complete Source Code
-
-**`search-and-fetch.sh`**:
-
-```bash
-#!/bin/bash
-# Search and Fetch - SearXNG + Smart Fetch combo tool
-
-cd "$(dirname "$0")"
-python3 search_and_fetch.py "$@"
-```
-
-**`search_and_fetch.py`** (core logic):
+**`search_and_fetch.py` complete source code:**
 
 ```python
 #!/usr/bin/env python3
@@ -317,6 +292,7 @@ Search first, then intelligently fetch detailed content
 
 import sys
 import urllib.request
+import urllib.error
 import urllib.parse
 import json
 import subprocess
@@ -355,7 +331,16 @@ def smart_fetch(url, max_chars=3000):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 search_and_fetch.py 'query' [num_results] [brief|full]")
+        print("""Usage: python3 search_and_fetch.py "query" [num_results] [brief|full]
+
+Options:
+  num_results - Number of search results (default: 5)
+  fetch_depth - brief (summary) | full (complete) (default: brief)
+
+Examples:
+  python3 search_and_fetch.py "OpenClaw tutorial"
+  python3 search_and_fetch.py "AI news" 3 full
+""")
         sys.exit(1)
     
     query = sys.argv[1]
@@ -396,22 +381,7 @@ if __name__ == "__main__":
     main()
 ```
 
-**The workflow:**
-
-```
-User Query → SearXNG Search → Get URLs → Smart Fetch → Clean Markdown
-```
-
-This gives you:
-1. Privacy-respecting search (self-hosted SearXNG)
-2. Intelligent content fetching
-3. Markdown optimization when available
-4. Clean, token-efficient output
-
-For setting up SearXNG search, check out my previous post:
-- [Search Solutions for AI Agents: SearXNG vs. Tavily vs. Custom](https://www.d5n.xyz/en/posts/openclaw-search-solutions-comparison/)
-
-### Example Usage
+**Usage:**
 
 ```bash
 # Search and get summaries
@@ -421,88 +391,85 @@ For setting up SearXNG search, check out my previous post:
 ./search-and-fetch.sh "AI safety research" 3 full
 ```
 
+For setting up SearXNG search, check out my previous post:
+- [Search Solutions for AI Agents: SearXNG vs. Tavily vs. Custom](https://www.d5n.xyz/en/posts/openclaw-search-solutions-comparison/)
+
 ---
 
 ## Real-World Impact
 
-I tested this on my own blog. Here's what happened:
+### Test Scenario: Scraping a Technical Blog Post
 
-**Before (HTML):**
-- Average post: ~5,000 tokens
-- Includes: navigation, footer, scripts, styles
-- AI has to parse and filter
+| Method | Content-Type | Token Count | Effect |
+|--------|-------------|-------------|--------|
+| Regular HTML | text/html | ~5,000 | Contains navigation, styles, noise |
+| Markdown format | text/markdown | ~1,000 | Only main content |
+| **Savings** | - | **~80%** | ✅ Significant optimization |
 
-**After (Markdown):**
-- Same content: ~1,000 tokens  
-- Includes: just the article
-- AI processes immediately
+### Benefits for AI Agents
 
-**Cost implication:** If you're using GPT-4 at $0.03/1K tokens, analyzing 100 articles:
-- HTML: 500K tokens = $15
-- Markdown: 100K tokens = $3
-
-**Savings: $12 per batch** — and that's just for small-scale usage.
+1. **Lower costs** - 60-80% reduction in token consumption
+2. **Faster processing** - Less content to parse
+3. **Better accuracy** - Reduced HTML noise interference
+4. **Longer context** - Same context window can hold more content
 
 ---
 
-## Why This Matters
+## Appendix: Making Your Website Support Markdown Format
 
-### For Content Creators
+If you want your own website to support Markdown for Agents, here are implementation methods.
 
-Your content is increasingly being consumed by AI, not just humans:
-- AI search engines (Perplexity, Bing Copilot)
-- Research assistants (Claude, ChatGPT with browsing)
-- Content aggregators
-- Automated analysis tools
+### Example: Hugo
 
-Making your content **AI-friendly** is becoming as important as making it **SEO-friendly**.
+Configure in `hugo.toml`:
 
-### For AI Developers
+```toml
+[outputs]
+  page = ["HTML", "Markdown"]
 
-Token costs are real. If you're building:
-- Web scraping pipelines
-- Research assistants  
-- Content analysis tools
-- Automated monitoring
+[outputFormats.Markdown]
+  mediatype = "text/markdown"
+  baseName = "index"
+  isPlainText = true
+```
 
-Every token you save is money in your pocket. An 80% reduction isn't just optimization—it's a different cost structure entirely.
+Create `layouts/_default/single.md` template:
+
+```markdown
+---
+title: "{{ .Title }}"
+date: {{ .Date }}
+---
+
+{{ .RawContent }}
+```
+
+After building, each post generates both `index.html` and `index.md`.
+
+### For Other Platforms
+
+- **WordPress**: Use plugins to generate Markdown versions
+- **Next.js/Gatsby**: Generate `.md` files at build time
+- **Docusaurus/VitePress**: Markdown source files, provide direct access
+- **Custom systems**: Write both HTML and Markdown when publishing
 
 ---
 
-## Implementation Checklist
+## Summary
 
-Want to implement this on your site?
+### Key Points
 
-**Generate Markdown versions:**
-- [ ] Configure your CMS/SSG to output Markdown
-- [ ] Set up URL patterns (e.g., `/post/index.md`)
-- [ ] Test that Markdown URLs work
-- [ ] Document your Markdown endpoints
+1. **Request headers are key** - Use `Accept: text/markdown` to request Markdown format
+2. **Try Markdown URLs** - Some websites provide `/index.md` direct access
+3. **Auto-conversion fallback** - Use Smart Fetch tool for automatic HTML→Markdown conversion
+4. **Integrated tools for efficiency** - Search+fetch integration, complete workflow
 
-**Use Smart Fetch:**
-- [ ] Deploy the `smart_fetch.py` script
-- [ ] Test with your Markdown URLs
-- [ ] Integrate into your AI workflows
+### Applicable Scenarios
 
-**Optimize for AI:**
-- [ ] Test with actual AI tools
-- [ ] Measure token savings
-- [ ] Adjust content structure if needed
-
----
-
-## The Bigger Picture
-
-This isn't just about saving tokens. It's about **the future of web content**.
-
-As AI agents become primary consumers of information, we need to think about:
-
-1. **Structured formats** - Machines need structure, not presentation
-2. **Semantic clarity** - Clear hierarchies, not visual styling  
-3. **Multiple representations** - Same content, different formats
-4. **Machine-readable metadata** - Schema, frontmatter, linked data
-
-The sites that adapt to this reality will have an advantage. Those that don't will be expensive to process and harder to discover.
+- ✅ AI assistant real-time Q&A (needs to fetch external sources)
+- ✅ Content aggregation and analysis (batch processing articles)
+- ✅ Automated monitoring (regular update checks)
+- ✅ Research assistance (quick access to clean content)
 
 ---
 
@@ -514,6 +481,4 @@ The sites that adapt to this reality will have an advantage. Those that don't wi
 
 ---
 
-**What's your take?** Are you optimizing your content for AI consumption? What approaches have worked for you?
-
-*This post is also available in Markdown format at `/posts/markdown-for-agents-guide/index.md` — try fetching it!*
+*Complete source code examples available on GitHub. Feedback welcome!*

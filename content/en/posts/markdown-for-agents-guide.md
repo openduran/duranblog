@@ -509,6 +509,7 @@ The sites that adapt to this reality will have an advantage. Those that don't wi
 ## Resources
 
 - [Cloudflare Markdown for Agents docs](https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/)
+- [Hugo Configure Outputs](https://gohugo.io/configuration/outputs/)
 - [Search Solutions Comparison](https://www.d5n.xyz/en/posts/openclaw-search-solutions-comparison/)
 
 ---

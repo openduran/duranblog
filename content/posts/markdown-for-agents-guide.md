@@ -506,6 +506,7 @@ AI：抓取每篇的 Markdown 版本 → 分析结构 → 生成报告
 ## 参考资源
 
 - [Cloudflare Markdown for Agents 官方文档](https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents/)
+- [Hugo 输出格式配置文档](https://gohugo.io/configuration/outputs/)
 - [自建搜索引擎方案对比](https://www.d5n.xyz/posts/openclaw-search-solutions-comparison/)
 
 ---

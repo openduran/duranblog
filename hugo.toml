@@ -123,11 +123,17 @@ theme = 'PaperMod'
 [outputs]
   home = ["HTML", "RSS", "JSON"]
   section = ["HTML", "RSS"]
+  page = ["HTML", "Markdown"]
 
 [outputFormats]
   [outputFormats.RSS]
     mediatype = "application/rss"
     baseName = "index"
+  
+  [outputFormats.Markdown]
+    mediatype = "text/markdown"
+    baseName = "index"
+    isPlainText = true
 
 # SEO: Sitemap configuration
 [sitemap]

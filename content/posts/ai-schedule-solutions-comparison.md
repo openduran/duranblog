@@ -65,7 +65,7 @@ Google API 提供两种认证方式，适用场景不同：
 
 ---
 
-### 方式一：OAuth 认证（推荐个人使用）
+### 方式一：OAuth 认证
 
 OAuth 适合访问你的个人 Google 日历和任务列表。
 
@@ -82,36 +82,24 @@ OAuth 适合访问你的个人 Google 日历和任务列表。
 1. 顶部搜索框输入 **"Google Calendar API"** → 点击 **启用**
 2. 搜索 **"Tasks API"** → 点击 **启用**
 
-#### 第三步：配置 OAuth 同意屏幕
+#### 第三步：配置 OAuth 权限请求
 
-1. 左侧菜单 → **API 和服务** → **OAuth 同意屏幕**
+1. 左侧菜单 → **API 和服务** → **OAuth 权限请求**
 2. 用户类型：**外部**（个人用户选这个）
 3. 应用名称：`AI Schedule`
 4. 用户支持邮箱：选择你的 Gmail
 5. 开发者联系信息：填写你的邮箱
 6. 点击 **保存并继续**
+7. **添加或移除范围** → 添加以下范围：
+   - `https://www.googleapis.com/auth/calendar.readonly` - 读取日历
+   - `https://www.googleapis.com/auth/tasks.readonly` - 读取任务
+8. 点击 **更新** → **保存并继续**
+9. **测试用户** → **添加用户** → 输入你的 Gmail 地址
+10. 点击 **保存并继续** → **返回信息中心**
 
-#### 第四步：添加 API 权限范围（关键步骤）
+> 📌 **权限说明**：上述配置完成后，AI 助手只能**读取**你的日历和任务。如果后续需要让 AI 助手**创建**日程或任务，需要升级权限，详见下方"扩展：升级权限"部分。
 
-**权限范围决定你能做什么**。初始配置时，建议先只读，后续根据需要升级：
-
-**初始权限（只读）：**
-- `https://www.googleapis.com/auth/calendar.readonly` - 读取日历
-- `https://www.googleapis.com/auth/tasks.readonly` - 读取任务
-
-**如果需要创建/编辑日程，后期升级权限：**
-- `https://www.googleapis.com/auth/calendar` - 完全控制日历
-- `https://www.googleapis.com/auth/tasks` - 完全控制任务
-
-> 💡 **经验**：我开始只用了 `calendar.readonly`，后来发现 AI 助手也需要帮我创建任务，就升级到了 `calendar` 和 `tasks` 权限。
-
-配置步骤：
-1. **添加或移除范围** → 添加上述 URL
-2. 点击 **更新** → **保存并继续**
-3. **测试用户** → **添加用户** → 输入你的 Gmail 地址
-4. 点击 **保存并继续** → **返回信息中心**
-
-#### 第五步：创建 OAuth 客户端 ID
+#### 第四步：创建 OAuth 客户端 ID
 
 1. **凭据** → **创建凭据** → **OAuth 客户端 ID**
 2. 应用类型：**桌面应用**
@@ -119,7 +107,7 @@ OAuth 适合访问你的个人 Google 日历和任务列表。
 4. 点击 **创建**
 5. 下载 JSON 文件，命名为 `client_secret.json`
 
-#### 第六步：放置凭证文件
+#### 第五步：放置凭证文件
 
 ```bash
 mkdir -p ~/.config/google-calendar
@@ -127,7 +115,7 @@ cp ~/Downloads/client_secret.json ~/.config/google-calendar/
 chmod 600 ~/.config/google-calendar/client_secret.json
 ```
 
-#### 第七步：Python 代码 - 读取日历
+#### 第六步：Python 代码 - 读取日历
 
 创建 `google_calendar.py`：
 
@@ -235,7 +223,7 @@ python3 google_calendar.py
 # 会显示授权 URL，浏览器打开授权后，复制授权码粘贴
 ```
 
-#### 第八步：Python 代码 - 读取任务
+#### 第七步：Python 代码 - 读取任务
 
 创建 `google_tasks.py`：
 
@@ -326,19 +314,43 @@ if __name__ == '__main__':
     print(get_tasks())
 ```
 
-#### 第九步：升级权限（可选）
+---
 
-如果你发现需要 AI 助手帮你**创建**日程或任务，需要升级权限：
+#### 扩展：升级权限（创建/编辑日程）
+
+以上配置完成后，AI 助手只能**读取**你的日历和任务。如果后续需要让 AI 助手**创建**日程或任务，需要升级权限：
+
+**1. 修改 Google Cloud 权限范围**
 
 1. 回到 [Google Cloud Console](https://console.cloud.google.com/)
-2. **API 和服务** → **OAuth 同意屏幕** → **修改应用**
+2. **API 和服务** → **OAuth 权限请求** → **修改应用**
 3. **添加或移除范围**，添加：
    - `https://www.googleapis.com/auth/calendar`（完整日历权限）
    - `https://www.googleapis.com/auth/tasks`（完整任务权限）
-4. 更新代码中的 `SCOPES` 列表
-5. **删除旧的 token.json**，重新授权
+4. 点击 **更新** → **保存**
 
-> 💡 **我的经验**：我开始只用只读权限，后来让 AI 助手帮我创建任务时，才发现需要升级。删除 token 重新授权后就正常了。
+**2. 更新代码权限**
+
+修改 `google_calendar.py` 中的 `SCOPES`：
+```python
+SCOPES = ['https://www.googleapis.com/auth/calendar']  # 从 readonly 改为完整权限
+```
+
+修改 `google_tasks.py` 中的 `SCOPES`：
+```python
+SCOPES = ['https://www.googleapis.com/auth/tasks']  # 从 readonly 改为完整权限
+```
+
+**3. 重新授权**
+
+**删除旧的 token 文件**，然后重新运行脚本授权：
+```bash
+rm ~/.config/google-calendar/token.json
+python3 google_calendar.py
+# 重新访问授权 URL，获取新的授权码
+```
+
+> 💡 **实际经验**：我开始只用只读权限，后来想让 AI 助手帮我创建任务时，才发现需要升级。按照上述步骤修改后，AI 助手就能帮我创建日程了。
 
 ---
 

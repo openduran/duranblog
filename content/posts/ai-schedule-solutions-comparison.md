@@ -4,17 +4,18 @@ date: 2026-03-10T14:00:00+08:00
 draft: true
 tags: ["schedule", "calendar", "productivity", "ai-agent", "tutorial"]
 categories: ["教程"]
-description: "全面对比 AI 助手可用的日程管理方案：Google Calendar、Microsoft Outlook、Notion 和本地 Markdown。包含从零开始的配置教程、网络稳定性分析和适用场景建议。"
+description: "全面对比 AI 助手可用的日程管理方案：Google Calendar、Microsoft Outlook、Notion 和本地 Markdown。基于实际部署经验，包含完整的配置流程和权限问题解决方案。"
 ---
 
 ## 为什么 AI 助手需要日程管理？
 
-当你每天问 AI 助手 "今天有什么安排？" 时，它应该能给出准确的回答，而不是说 "我不知道"。
+当你问 AI 助手 "今天有什么安排？" 或 "帮我创建一个明天下午 3 点的会议" 时，它应该能准确执行，而不是说 "我不知道"。
 
 一个完善的 AI 助手日程系统应该具备：
 - 📅 **读取日程** - 知道今天、明天有什么安排
 - ⏰ **定时提醒** - 在合适的时间推送通知
 - 📝 **任务追踪** - 管理待办事项和完成状态
+- 🤖 **主动创建** - AI 能帮你新建日程和任务
 - 🔄 **多端同步** - 手机、电脑、AI 助手都能访问
 
 但选择合适的方案并不容易——**网络环境、配置复杂度、使用习惯**都会影响决策。
@@ -23,12 +24,12 @@ description: "全面对比 AI 助手可用的日程管理方案：Google Calenda
 
 ## 方案总览
 
-| 方案 | 国内稳定性 | 配置难度 | 实时同步 | 最佳适用场景 |
-|------|-----------|---------|---------|-------------|
-| **Google Calendar** | ⭐⭐ (需科学上网) | ⭐⭐⭐ 复杂 | ✅ 是 | 海外用户、已用 Google 生态 |
+| 方案 | 国内稳定性 | 配置难度 | AI 可创建 | 最佳适用场景 |
+|------|-----------|---------|-----------|-------------|
+| **Google Calendar** | ⭐⭐ (需科学上网) | ⭐⭐⭐ 复杂 | ✅ 是 | 海外用户、完整 Google 生态 |
 | **Microsoft Outlook** | ⭐⭐⭐⭐⭐ 优秀 | ⭐⭐ 中等 | ✅ 是 | 企业用户、微软生态 |
-| **Notion** | ⭐⭐⭐⭐ 良好 | ⭐ 简单 | ✅ 是 | 知识工作者、已用 Notion |
-| **本地 Markdown** | ⭐⭐⭐⭐⭐ 完美 | ⭐ 极简 | ❌ 否 | 隐私优先、快速开始 |
+| **Notion** | ⭐⭐⭐⭐ 良好 | ⭐ 简单 | ✅ 是 | 知识工作者、灵活数据库 |
+| **本地 Markdown** | ⭐⭐⭐⭐⭐ 完美 | ⭐ 极简 | ✅ 是 | 隐私优先、快速开始 |
 
 ---
 
@@ -37,155 +38,130 @@ description: "全面对比 AI 助手可用的日程管理方案：Google Calenda
 ### 适用人群
 - 已有 Google 账号和日历数据
 - 网络环境可以稳定访问 Google
-- 需要与其他 Google 服务集成
+- **需要 AI 助手既能读取、又能创建日程和任务**
 
 ### 核心优势
-- **生态完善** - 与 Gmail、Google Meet 深度集成
-- **API 成熟** - Python 官方库支持完善
+- **完整生态** - Calendar + Tasks 双功能，AI 可读写
+- **API 成熟** - Python 官方库支持，调试文档完善
+- **权限精细** - 可控制 AI 只有读取权，或给予完整控制权
 - **免费额度充足** - 个人使用几乎无限制
-- **双重功能** - Calendar（日程）+ Tasks（待办）
 
 ### 主要缺点
 - **国内访问困难** - 需要稳定的外网环境
-- **配置相对复杂** - 需要 Service Account 或 OAuth 认证
-- **隐私顾虑** - 数据存储在 Google 服务器
-
-### 认证方式选择
-
-Google API 提供两种认证方式，适用场景不同：
-
-| 方式 | 适用场景 | 优点 | 缺点 |
-|------|---------|------|------|
-| **Service Account** | 访问共享日历、企业场景 | 无需用户交互，永久有效 | 无法访问个人日历，需要显式分享 |
-| **OAuth** | 访问个人日历和任务 | 访问个人数据，权限更灵活 | 需要用户授权，token 会过期 |
-
-**推荐选择**：
-- 如果是**个人使用**，需要读取自己的日历和任务 → **OAuth**
-- 如果是**企业/团队**，需要访问共享日历 → **Service Account**
+- **配置相对复杂** - 涉及两种认证方式配合使用
+- **权限容易踩坑** - IAM 角色、API Scope、日历分享三层权限容易混淆
 
 ---
 
-### 方式一：OAuth 认证
+### 我们的配置方案
 
-OAuth 适合访问你的个人 Google 日历和任务列表。
+基于实际部署经验，我们采用**混合认证方案**：
 
-#### 第一步：创建 Google Cloud 项目
+| 功能 | 认证方式 | 原因 |
+|------|---------|------|
+| **Calendar（日历）** | Service Account | 日历可以共享给 Service Account，适合自动化访问 |
+| **Tasks（任务）** | OAuth | Google Tasks 无法像日历那样共享，必须用 OAuth 访问个人任务列表 |
+
+> 💡 **踩坑经验**：我们最初尝试用 Service Account 同时访问日历和任务，结果发现 Tasks API 不支持 Service Account 访问个人任务列表。最终采用混合方案，日历用 Service Account，任务用 OAuth。
+
+---
+
+### 第一步：创建 Google Cloud 项目
 
 1. 访问 [Google Cloud Console](https://console.cloud.google.com/)
 2. 点击左上角选择项目 → **新建项目**
 3. 项目名称：`ai-schedule-demo`
 4. 点击 **创建**
 
-#### 第二步：启用 API
+---
+
+### 第二步：启用 API
 
 需要启用两个 API：
 1. 顶部搜索框输入 **"Google Calendar API"** → 点击 **启用**
 2. 搜索 **"Tasks API"** → 点击 **启用**
 
-#### 第三步：配置 OAuth 权限请求
+---
 
-1. 左侧菜单 → **API 和服务** → **OAuth 权限请求**
-2. 用户类型：**外部**（个人用户选这个）
-3. 应用名称：`AI Schedule`
-4. 用户支持邮箱：选择你的 Gmail
-5. 开发者联系信息：填写你的邮箱
-6. 点击 **保存并继续**
-7. **添加或移除范围** → 添加以下范围：
-   - `https://www.googleapis.com/auth/calendar.readonly` - 读取日历
-   - `https://www.googleapis.com/auth/tasks.readonly` - 读取任务
-8. 点击 **更新** → **保存并继续**
-9. **测试用户** → **添加用户** → 输入你的 Gmail 地址
-10. 点击 **保存并继续** → **返回信息中心**
+### 第三步：配置日历访问（Service Account）
 
-> 📌 **权限说明**：上述配置完成后，AI 助手只能**读取**你的日历和任务。如果后续需要让 AI 助手**创建**日程或任务，需要升级权限，详见下方"扩展：升级权限"部分。
+Service Account 适合日历访问，因为日历可以显式共享给它。
 
-#### 第四步：创建 OAuth 客户端 ID
+#### 3.1 创建 Service Account
 
-1. **凭据** → **创建凭据** → **OAuth 客户端 ID**
-2. 应用类型：**桌面应用**
-3. 名称：`OpenClaw Desktop`
-4. 点击 **创建**
-5. 下载 JSON 文件，命名为 `client_secret.json`
+1. [Google Cloud Console](https://console.cloud.google.com/) → **IAM 和管理** → **服务账号**
+2. 点击 **创建服务账号**
+3. 名称：`calendar-reader`
+4. 点击**创建并继续**
+5. **角色选择**：
+   - 如果 AI **只需要读取**日历 → **浏览者**（Viewer）
+   - 如果 AI **需要创建/编辑**日程 → **编辑者**（Editor）
+6. 点击**完成**
 
-#### 第五步：放置凭证文件
+> 📌 **权限说明**：这里选择的 IAM 角色控制 Service Account 对 Google Cloud 资源的访问权限。如果后续需要让 AI 创建日程，需要选择 **Editor** 角色。
+
+#### 3.2 创建密钥
+
+1. 点击刚创建的 Service Account → **密钥** 标签
+2. **添加密钥** → **创建新密钥** → **JSON**
+3. 下载的文件保存为 `service-account.json`
+4. 移动到配置目录：
 
 ```bash
 mkdir -p ~/.config/google-calendar
-cp ~/Downloads/client_secret.json ~/.config/google-calendar/
-chmod 600 ~/.config/google-calendar/client_secret.json
+cp ~/Downloads/service-account.json ~/.config/google-calendar/
+chmod 600 ~/.config/google-calendar/service-account.json
 ```
 
-#### 第六步：Python 代码 - 读取日历
+#### 3.3 分享日历给 Service Account
+
+**关键步骤**：Service Account 无法自动访问你的日历，必须显式分享。
+
+1. 打开 [Google Calendar](https://calendar.google.com)
+2. 左侧找到要同步的日历 → 点击 **⋮** → **设置和共享**
+3. **共享设置** → **添加用户**
+4. 输入 Service Account 邮箱（类似 `calendar-reader@ai-schedule-demo.iam.gserviceaccount.com`）
+5. **权限选择**：
+   - **查看所有活动详情** - AI 只能读取
+   - **更改活动** - AI 可以创建和编辑日程
+
+> ⚠️ **常见错误**：如果忘记分享日历，或权限设为"仅查看忙碌状态"，API 会返回空列表或 403 错误。
+
+#### 3.4 Python 代码 - 读取日历
 
 创建 `google_calendar.py`：
 
 ```python
 #!/usr/bin/env python3
-"""Google Calendar 读取 - OAuth 方式"""
+"""Google Calendar 读取 - Service Account 方式"""
 
 import os
-import pickle
 from datetime import datetime, timedelta
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# OAuth 配置 - 只读权限
+# Service Account 配置
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-CLIENT_SECRET_FILE = os.path.expanduser('~/.config/google-calendar/client_secret.json')
-TOKEN_FILE = os.path.expanduser('~/.config/google-calendar/token.json')
-
-def get_credentials():
-    """获取 OAuth 凭证，首次需要浏览器授权"""
-    creds = None
-    
-    # 加载已保存的 token
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, 'rb') as token:
-            creds = pickle.load(token)
-    
-    # 如果没有有效凭证，需要授权
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            if not os.path.exists(CLIENT_SECRET_FILE):
-                print("❌ 未找到 client_secret.json")
-                return None
-            
-            flow = InstalledAppFlow.from_client_secrets_file(
-                CLIENT_SECRET_FILE, SCOPES)
-            
-            # 对于无浏览器环境（如服务器），使用手动授权
-            auth_url, _ = flow.authorization_url(prompt='consent')
-            print(f"请访问这个 URL 授权：\n{auth_url}\n")
-            code = input("输入授权码：")
-            flow.fetch_token(code=code)
-            creds = flow.credentials
-        
-        # 保存 token
-        os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
-        with open(TOKEN_FILE, 'wb') as token:
-            pickle.dump(creds, token)
-    
-    return creds
+SERVICE_ACCOUNT_FILE = os.path.expanduser('~/.config/google-calendar/service-account.json')
+CALENDAR_ID = 'primary'  # 主日历，或共享日历的 ID
 
 def get_today_events():
     """获取今日日程"""
+    if not os.path.exists(SERVICE_ACCOUNT_FILE):
+        return "   ⚠️ 未配置 Service Account"
+    
     try:
-        creds = get_credentials()
-        if not creds:
-            return "   ⚠️ 未授权"
-        
+        creds = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         service = build('calendar', 'v3', credentials=creds)
         
-        # 获取今天的时间范围
+        # 今天的时间范围
         now = datetime.now()
         start = now.replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
         end = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
         
         events_result = service.events().list(
-            calendarId='primary',  # 主日历
+            calendarId=CALENDAR_ID,
             timeMin=start,
             timeMax=end,
             singleEvents=True,
@@ -201,7 +177,7 @@ def get_today_events():
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
             if 'T' in start:
-                time_str = start[11:16]  # 提取 HH:MM
+                time_str = start[11:16]
             else:
                 time_str = '全天'
             lines.append(f"   • {time_str} {event['summary']}")
@@ -209,21 +185,61 @@ def get_today_events():
         return '\n'.join(lines)
         
     except Exception as e:
-        return f"   ⚠️ 获取失败: {str(e)[:40]}"
+        return f"   ⚠️ 获取失败: {str(e)[:50]}"
 
 if __name__ == '__main__':
     print("📅 **今日日程**")
     print(get_today_events())
 ```
 
-**首次运行需要授权：**
+---
+
+### 第四步：配置任务访问（OAuth）
+
+Google Tasks 无法像日历那样共享，必须使用 OAuth 访问你的个人任务列表。
+
+#### 4.1 配置 OAuth 权限请求
+
+1. 左侧菜单 → **API 和服务** → **OAuth 权限请求**
+2. 用户类型：**外部**（个人用户选这个）
+3. 应用名称：`AI Schedule`
+4. 用户支持邮箱：选择你的 Gmail
+5. 开发者联系信息：填写你的邮箱
+6. 点击 **保存并继续**
+
+#### 4.2 添加 API 权限范围
+
+**添加 Tasks 权限**（根据需求选择）：
+
+**只读权限：**
+- `https://www.googleapis.com/auth/tasks.readonly` - 读取任务
+
+**完整权限**（AI 可以创建/完成任务）：
+- `https://www.googleapis.com/auth/tasks` - 完全控制任务
+
+配置步骤：
+1. **添加或移除范围** → 添加上述 URL
+2. 点击 **更新** → **保存并继续**
+3. **测试用户** → **添加用户** → 输入你的 Gmail 地址
+4. 点击 **保存并继续** → **返回信息中心**
+
+> 📌 **权限说明**：上述配置完成后，AI 助手只能**读取**任务。如果后续需要让 AI 助手**创建**任务，需要使用 `tasks` 完整权限，并重新授权。
+
+#### 4.3 创建 OAuth 客户端 ID
+
+1. **凭据** → **创建凭据** → **OAuth 客户端 ID**
+2. 应用类型：**桌面应用**
+3. 名称：`OpenClaw Desktop`
+4. 点击 **创建**
+5. 下载 JSON 文件，命名为 `client_secret.json`
+6. 移动到配置目录：
+
 ```bash
-pip3 install --user google-auth-oauthlib google-api-python-client
-python3 google_calendar.py
-# 会显示授权 URL，浏览器打开授权后，复制授权码粘贴
+cp ~/Downloads/client_secret.json ~/.config/google-calendar/
+chmod 600 ~/.config/google-calendar/client_secret.json
 ```
 
-#### 第七步：Python 代码 - 读取任务
+#### 4.4 Python 代码 - 读取任务
 
 创建 `google_tasks.py`：
 
@@ -238,12 +254,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
+# OAuth 配置
 SCOPES = ['https://www.googleapis.com/auth/tasks.readonly']
 CLIENT_SECRET_FILE = os.path.expanduser('~/.config/google-calendar/client_secret.json')
 TOKEN_FILE = os.path.expanduser('~/.config/google-calendar/token.json')
 
 def get_credentials():
-    """获取 OAuth 凭证（复用 Calendar 的 token）"""
+    """获取 OAuth 凭证，首次需要浏览器授权"""
     creds = None
     
     if os.path.exists(TOKEN_FILE):
@@ -254,9 +271,22 @@ def get_credentials():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            print("❌ 请先运行 calendar 授权")
-            return None
+            if not os.path.exists(CLIENT_SECRET_FILE):
+                print("❌ 未找到 client_secret.json")
+                return None
+            
+            flow = InstalledAppFlow.from_client_secrets_file(
+                CLIENT_SECRET_FILE, SCOPES)
+            
+            # 对于无浏览器环境，使用手动授权
+            auth_url, _ = flow.authorization_url(prompt='consent')
+            print(f"请访问这个 URL 授权：\n{auth_url}\n")
+            code = input("输入授权码：")
+            flow.fetch_token(code=code)
+            creds = flow.credentials
         
+        # 保存 token
+        os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
         with open(TOKEN_FILE, 'wb') as token:
             pickle.dump(creds, token)
     
@@ -271,7 +301,6 @@ def get_tasks():
         
         service = build('tasks', 'v1', credentials=creds)
         
-        # 获取默认任务列表中的未完成任务
         result = service.tasks().list(
             tasklist='@default',
             showCompleted=False,
@@ -289,8 +318,6 @@ def get_tasks():
         for task in tasks:
             title = task.get('title', '无标题')
             due = task.get('due', '')
-            
-            # 根据截止日期添加前缀
             if due:
                 due_date = due[:10]
                 if due_date < today:
@@ -301,7 +328,6 @@ def get_tasks():
                     prefix = "   • "
             else:
                 prefix = "   • "
-            
             lines.append(f"{prefix}{title}")
         
         return '\n'.join(lines)
@@ -314,204 +340,86 @@ if __name__ == '__main__':
     print(get_tasks())
 ```
 
----
-
-#### 扩展：升级权限（创建/编辑日程）
-
-以上配置完成后，AI 助手只能**读取**你的日历和任务。如果后续需要让 AI 助手**创建**日程或任务，需要升级权限：
-
-**1. 修改 Google Cloud 权限范围**
-
-1. 回到 [Google Cloud Console](https://console.cloud.google.com/)
-2. **API 和服务** → **OAuth 权限请求** → **修改应用**
-3. **添加或移除范围**，添加：
-   - `https://www.googleapis.com/auth/calendar`（完整日历权限）
-   - `https://www.googleapis.com/auth/tasks`（完整任务权限）
-4. 点击 **更新** → **保存**
-
-**2. 更新代码权限**
-
-修改 `google_calendar.py` 中的 `SCOPES`：
-```python
-SCOPES = ['https://www.googleapis.com/auth/calendar']  # 从 readonly 改为完整权限
-```
-
-修改 `google_tasks.py` 中的 `SCOPES`：
-```python
-SCOPES = ['https://www.googleapis.com/auth/tasks']  # 从 readonly 改为完整权限
-```
-
-**3. 重新授权**
-
-**删除旧的 token 文件**，然后重新运行脚本授权：
+**首次运行需要授权：**
 ```bash
-rm ~/.config/google-calendar/token.json
-python3 google_calendar.py
-# 重新访问授权 URL，获取新的授权码
+pip3 install --user google-auth-oauthlib google-api-python-client
+python3 google_tasks.py
+# 会显示授权 URL，浏览器打开授权后，复制授权码粘贴
 ```
 
-> 💡 **实际经验**：我开始只用只读权限，后来想让 AI 助手帮我创建任务时，才发现需要升级。按照上述步骤修改后，AI 助手就能帮我创建日程了。
+---
+
+### 第五步：整合到每日简报
+
+在 `rss_news.py` 中整合：
+
+```python
+def get_schedule_section():
+    """获取日程板块"""
+    # 日历使用 Service Account
+    from google_calendar import get_today_events
+    # 任务使用 OAuth
+    from google_tasks import get_tasks
+    
+    lines = []
+    lines.append("📅 **今日日程**")
+    lines.append(get_today_events())
+    lines.append("")
+    lines.append("📋 **待办任务**")
+    lines.append(get_tasks())
+    return '\n'.join(lines)
+```
 
 ---
 
-### 方式二：Service Account 认证（适合共享日历）
+### 权限升级：让 AI 创建日程和任务
 
-Service Account 适合访问**共享日历**或**企业场景**，不需要用户交互。
+以上配置完成后，AI 只能**读取**日程和任务。如果需要 AI **创建**日程或任务，需要升级权限：
 
-#### 第一步：创建 Service Account
-
-1. [Google Cloud Console](https://console.cloud.google.com/) → **IAM 和管理** → **服务账号**
-2. 点击 **创建服务账号**
-3. 名称：`schedule-reader`
-4. 点击**创建并继续**
-5. 角色选择：
-   - **浏览者**（Viewer）- 如果 AI 只需要**读取**日历
-   - **编辑者**（Editor）- 如果 AI 需要**创建/编辑**日历事件
-6. 点击**完成**
-
-> 📌 **权限说明**：这里选择的 IAM 角色控制 Service Account 对 Google Cloud 资源的访问权限。如果后续需要让 AI 创建事件，建议选择 **Editor** 角色，或者后续在 IAM 中修改角色权限。
-
----
-
-#### 扩展：升级 Service Account 权限（创建/编辑日程）
-
-如果创建时选择了 Viewer 角色，后续需要让 AI 助手创建日程，需要升级 IAM 权限：
+#### 升级日历权限（Service Account）
 
 **1. 修改 IAM 角色**
 
 1. [Google Cloud Console](https://console.cloud.google.com/) → **IAM 和管理** → **IAM**
-2. 找到你的 Service Account（如 `schedule-reader@...`）
-3. 点击 **修改**（铅笔图标）
-4. 角色改为：**编辑者**（Editor）或 **Owner**（所有者）
-5. 点击 **保存**
+2. 找到 Service Account → 点击 **修改**
+3. 角色改为：**编辑者**（Editor）
+4. 点击 **保存**
 
 **2. 确保日历分享权限正确**
 
-1. 打开 [Google Calendar](https://calendar.google.com)
-2. 找到分享的日历 → **设置和共享**
-3. 确保 Service Account 的权限是 **"更改活动"**（Make changes to events）
+1. [Google Calendar](https://calendar.google.com) → 日历设置
+2. Service Account 的权限必须是 **"更改活动"**
 
-**3. 更新代码中的 Scope**
+**3. 更新代码 Scope**
 
-将代码中的：
 ```python
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-```
-
-改为：
-```python
+# 从 readonly 改为完整权限
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 ```
 
-> 💡 **实际经验**：我开始创建 Service Account 时选了 Viewer，后来 AI 无法创建事件，排查后才发现需要同时满足：(1) IAM 角色为 Editor + (2) 日历分享权限为"更改活动" + (3) 代码使用 `calendar` scope。
+#### 升级任务权限（OAuth）
 
----
+**1. 修改 Google Cloud 权限范围**
 
-#### 第二步：创建密钥
+1. **API 和服务** → **OAuth 权限请求** → **修改应用**
+2. **添加或移除范围**，将 `tasks.readonly` 改为 `tasks`
+3. 点击 **更新** → **保存**
 
-1. 点击刚创建的服务账号 → **密钥** 标签
-2. **添加密钥** → **创建新密钥** → **JSON**
-3. 下载的文件保存为 `service-account.json`
-
-#### 第三步：放置凭证
-
-```bash
-mkdir -p ~/.config/google-calendar
-cp ~/Downloads/service-account.json ~/.config/google-calendar/
-chmod 600 ~/.config/google-calendar/service-account.json
-```
-
-#### 第四步：分享日历（关键步骤）
-
-**Service Account 无法自动访问你的日历，必须显式分享：**
-
-1. 打开 [Google Calendar](https://calendar.google.com)
-2. 左侧找到要同步的日历 → 点击 **⋮** → **设置和共享**
-3. **共享设置** → **添加用户**
-4. 输入服务账号邮箱（类似 `schedule-reader@ai-schedule-demo.iam.gserviceaccount.com`）
-5. 权限选择：
-   - **查看所有活动详情**（只读）
-   - **更改活动**（如果需要 AI 创建日程）
-
-> ⚠️ **常见问题**：如果忘记分享日历，会返回空列表或 404 错误。
-
-#### 第五步：Python 代码
+**2. 更新代码权限**
 
 ```python
-#!/usr/bin/env python3
-"""Google Calendar - Service Account 方式"""
-
-import os
-from datetime import datetime, timedelta
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-
-# Service Account 配置
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-SERVICE_ACCOUNT_FILE = os.path.expanduser('~/.config/google-calendar/service-account.json')
-
-def get_events():
-    """获取日程"""
-    if not os.path.exists(SERVICE_ACCOUNT_FILE):
-        return "   ⚠️ 未配置 Service Account"
-    
-    try:
-        # 使用 Service Account 凭证
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-        
-        service = build('calendar', 'v3', credentials=creds)
-        
-        # 注意：这里要使用你分享日历时使用的 Calendar ID
-        # 对于主日历，通常是 'primary'
-        # 对于共享日历，是类似 'xxx@group.calendar.google.com' 的 ID
-        CALENDAR_ID = 'primary'
-        
-        now = datetime.now()
-        start = now.replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
-        end = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
-        
-        events_result = service.events().list(
-            calendarId=CALENDAR_ID,
-            timeMin=start,
-            timeMax=end,
-            singleEvents=True,
-            orderBy='startTime'
-        ).execute()
-        
-        events = events_result.get('items', [])
-        
-        if not events:
-            return "   • 暂无日程（请检查日历是否已分享给 Service Account）"
-        
-        lines = []
-        for event in events:
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            if 'T' in start:
-                time_str = start[11:16]
-            else:
-                time_str = '全天'
-            lines.append(f"   • {time_str} {event['summary']}")
-        
-        return '\n'.join(lines)
-        
-    except Exception as e:
-        return f"   ⚠️ 获取失败: {str(e)[:50]}"
-
-if __name__ == '__main__':
-    print("📅 **今日日程** (Service Account)")
-    print(get_events())
+SCOPES = ['https://www.googleapis.com/auth/tasks']  # 去掉 .readonly
 ```
 
-#### Service Account vs OAuth 对比
+**3. 重新授权**
 
-| 特性 | Service Account | OAuth |
-|------|-----------------|-------|
-| 访问个人日历 | ❌ 需要显式分享 | ✅ 直接访问 |
-| 访问共享日历 | ✅ 适合 | ⚠️ 需要日历所有者授权 |
-| 自动化程度 | ✅ 无需人工干预 | ⚠️ 首次需授权 |
-| 权限粒度 | 由分享时决定 | 由 OAuth scope 决定 |
-| 适用场景 | 企业、团队 | 个人使用 |
+```bash
+rm ~/.config/google-calendar/token.json
+python3 google_tasks.py
+# 重新访问授权 URL，获取新的授权码
+```
+
+> 💡 **实际经验**：我开始只用只读权限，后来想让 AI 助手帮我创建任务时，才发现需要同时满足：(1) Google Cloud 权限范围正确 + (2) 代码 scope 正确 + (3) 重新授权。删除 token 重新授权后，AI 就能帮我创建日程了。
 
 ---
 
@@ -871,43 +779,31 @@ if __name__ == '__main__':
 
 ---
 
-## 集成到 AI 助手每日简报
-
-无论选择哪种方案，集成到每日简报的方法都类似：
-
-```python
-# 在 rss_news.py 中添加
-
-def get_schedule():
-    # 根据选择的方案调用对应函数
-    # return get_google_calendar_events()  # Google
-    # return get_outlook_events()          # Outlook
-    # return get_notion_schedule()         # Notion
-    return get_markdown_schedule()         # Markdown
-
-# 在生成简报时使用
-lines.append("📅 **今日日程**")
-lines.append(get_schedule())
-```
-
----
-
 ## 方案对比总结
 
 ### 网络稳定性（国内环境）
 
 | 方案 | 访问速度 | 可靠性 | 备注 |
 |------|---------|--------|------|
-| Google Calendar | ⚠️ 慢 | ❌ 需科学上网 | Calendar + Tasks 双功能 |
+| Google Calendar | ⚠️ 慢 | ❌ 需科学上网 | Calendar + Tasks 双功能，AI 可读写 |
 | Outlook/365 | ✅ 快 | ✅ 稳定 | 微软国内 CDN |
 | Notion | ✅ 快 | ✅ 稳定 | 数据库灵活 |
 | Markdown | ✅ 本地 | ✅ 完美 | 完全离线 |
+
+### AI Agent 自主性对比
+
+| 方案 | AI 可读取 | AI 可创建 | 配置复杂度 |
+|------|-----------|-----------|-----------|
+| **Google Calendar** | ✅ | ✅ | ⭐⭐⭐ 需混合认证 |
+| **Outlook** | ✅ | ✅ | ⭐⭐ 需 Azure 配置 |
+| **Notion** | ✅ | ✅ | ⭐ 简单 API |
+| **Markdown** | ✅ | ✅ | ⭐ 本地文件操作 |
 
 ### 推荐选择
 
 **如果你是...**
 
-- **海外用户或能稳定访问 Google** → Google Calendar（功能最全，Calendar + Tasks）
+- **海外用户，需要完整 Google 生态** → Google Calendar（日历 Service Account + 任务 OAuth 混合方案）
 - **企业/学生，有微软账号** → Outlook（国内最稳）
 - **已用 Notion 管理一切** → Notion Database（一体化）
 - **极简主义者/隐私优先** → Markdown（最简单）
@@ -917,9 +813,10 @@ lines.append(get_schedule())
 ## 参考资源
 
 - [Google Calendar API 文档](https://developers.google.com/calendar/api/guides/overview)
+- [Google Tasks API 文档](https://developers.google.com/tasks/reference/rest)
 - [Microsoft Graph API 日历文档](https://docs.microsoft.com/en-us/graph/api/resources/calendar)
 - [Notion API 文档](https://developers.notion.com/)
 
 ---
 
-*选择最适合你的方案，让 AI 助手真正成为你的效率助手。*
+*选择最适合你的方案，让 AI 助手从 "只能回答" 进化为 "能主动帮你管理时间" 的真正助手。*

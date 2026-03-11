@@ -1,20 +1,21 @@
 ---
 title: "AI Agent Schedule Management: Comparing Google, Outlook, Notion, and Local Solutions"
 date: 2026-03-10T14:00:00+08:00
-draft: true
+draft: false
 tags: ["schedule", "calendar", "productivity", "ai-agent", "tutorial"]
 categories: ["Tutorials"]
-description: "A comprehensive comparison of schedule management solutions for AI agents: Google Calendar, Microsoft Outlook, Notion, and local Markdown. Includes step-by-step setup guides, permission issues, and real-world deployment experience."
+description: "A comprehensive comparison of schedule management solutions for AI agents: Google Calendar, Microsoft Outlook, Notion, and local Markdown. Based on real deployment experience with complete configuration workflows and permission troubleshooting."
 ---
 
 ## Why Do AI Agents Need Schedule Management?
 
-When you ask your AI agent "What's on my schedule today?" it should give you an accurate answer, not "I don't know."
+When you ask your AI agent "What's on my schedule today?" or "Create a meeting for tomorrow at 3 PM," it should execute accurately, not say "I don't know."
 
 A complete AI agent schedule system should have:
 - 📅 **Read schedules** - Know what's happening today and tomorrow
 - ⏰ **Timely reminders** - Push notifications at the right time
 - 📝 **Task tracking** - Manage to-do items and completion status
+- 🤖 **Proactive creation** - AI can create new events and tasks for you
 - 🔄 **Multi-device sync** - Accessible from phone, computer, and AI assistant
 
 But choosing the right solution isn't easy—**network environment, configuration complexity, and usage habits** all affect the decision.
@@ -23,12 +24,12 @@ But choosing the right solution isn't easy—**network environment, configuratio
 
 ## Solution Overview
 
-| Solution | China Stability | Setup Difficulty | Real-time Sync | Best For |
-|----------|-----------------|------------------|----------------|----------|
-| **Google Calendar** | ⭐⭐ (needs VPN) | ⭐⭐⭐ Complex | ✅ Yes | Overseas users, Google ecosystem |
+| Solution | China Stability | Setup Difficulty | AI Can Create | Best For |
+|----------|-----------------|------------------|---------------|----------|
+| **Google Calendar** | ⭐⭐ (needs VPN) | ⭐⭐⭐ Complex | ✅ Yes | Overseas users, full Google ecosystem |
 | **Microsoft Outlook** | ⭐⭐⭐⭐⭐ Excellent | ⭐⭐ Medium | ✅ Yes | Enterprise users, Microsoft ecosystem |
-| **Notion** | ⭐⭐⭐⭐ Good | ⭐ Simple | ✅ Yes | Knowledge workers, existing Notion users |
-| **Local Markdown** | ⭐⭐⭐⭐⭐ Perfect | ⭐ Minimal | ❌ No | Privacy-first, quick start |
+| **Notion** | ⭐⭐⭐⭐ Good | ⭐ Simple | ✅ Yes | Knowledge workers, flexible databases |
+| **Local Markdown** | ⭐⭐⭐⭐⭐ Perfect | ⭐ Minimal | ✅ Yes | Privacy-first, quick start |
 
 ---
 
@@ -37,167 +38,130 @@ But choosing the right solution isn't easy—**network environment, configuratio
 ### Who It's For
 - Already have Google account and calendar data
 - Network environment can stably access Google
-- Need integration with other Google services
+- **Need AI assistant that can both read AND create events and tasks**
 
 ### Key Advantages
-- **Complete ecosystem** - Deep integration with Gmail, Google Meet
-- **Mature API** - Excellent Python official library support
+- **Complete ecosystem** - Calendar + Tasks dual functionality, AI can read and write
+- **Mature API** - Python official library support with comprehensive debugging docs
+- **Fine-grained permissions** - Control AI to have read-only or full control
 - **Generous free tier** - Almost unlimited for personal use
-- **Dual functionality** - Calendar (events) + Tasks (to-dos)
 
 ### Main Drawbacks
 - **Difficult China access** - Needs stable VPN/proxy
-- **Relatively complex setup** - Requires OAuth or Service Account
-- **Privacy concerns** - Data stored on Google servers
-
-### Authentication Method Selection
-
-Google API provides two authentication methods for different scenarios:
-
-| Method | Use Case | Pros | Cons |
-|--------|----------|------|------|
-| **Service Account** | Shared calendars, enterprise | No user interaction, permanent | Can't access personal calendars, needs explicit sharing |
-| **OAuth** | Personal calendars and tasks | Access personal data, flexible permissions | Requires user authorization, token expires |
-
-**Recommendation**:
-- **Personal use**, need to read your own calendar and tasks → **OAuth**
-- **Enterprise/team**, need to access shared calendars → **Service Account**
+- **Relatively complex setup** - Involves two authentication methods working together
+- **Permission pitfalls** - IAM roles, API scopes, and calendar sharing permissions can be confusing
 
 ---
 
-### Method 1: OAuth Authentication (Recommended for Personal Use)
+### Our Configuration Approach
 
-OAuth is suitable for accessing your personal Google Calendar and Tasks.
+Based on real deployment experience, we use a **hybrid authentication approach**:
 
-#### Step 1: Create Google Cloud Project
+| Feature | Auth Method | Reason |
+|---------|-------------|--------|
+| **Calendar** | Service Account | Calendars can be shared with Service Account, suitable for automated access |
+| **Tasks** | OAuth | Google Tasks cannot be shared like calendars, must use OAuth to access personal task list |
+
+> 💡 **Lesson learned**: We initially tried to use Service Account for both calendar and tasks, but discovered Tasks API doesn't support Service Account access to personal task lists. We ended up with a hybrid solution: Service Account for calendar, OAuth for tasks.
+
+---
+
+### Step 1: Create Google Cloud Project
 
 1. Visit [Google Cloud Console](https://console.cloud.google.com/)
 2. Click project selector → **New Project**
 3. Project name: `ai-schedule-demo`
 4. Click **Create**
 
-#### Step 2: Enable APIs
+---
+
+### Step 2: Enable APIs
 
 Enable two APIs:
 1. Search **"Google Calendar API"** → Click **Enable**
 2. Search **"Tasks API"** → Click **Enable**
 
-#### Step 3: Configure OAuth Consent Screen
+---
 
-1. Left menu → **APIs & Services** → **OAuth consent screen**
-2. User type: **External** (for personal accounts)
-3. App name: `AI Schedule`
-4. User support email: Select your Gmail
-5. Developer contact info: Enter your email
-6. Click **Save and Continue**
+### Step 3: Configure Calendar Access (Service Account)
 
-#### Step 4: Add API Scopes (Critical Step)
+Service Account is suitable for calendar access because calendars can be explicitly shared with it.
 
-**Scopes determine what you can do**. Start with read-only, upgrade as needed:
+#### 3.1 Create Service Account
 
-**Initial scopes (read-only):**
-- `https://www.googleapis.com/auth/calendar.readonly` - Read calendar
-- `https://www.googleapis.com/auth/tasks.readonly` - Read tasks
+1. [Google Cloud Console](https://console.cloud.google.com/) → **IAM & Admin** → **Service Accounts**
+2. Click **Create Service Account**
+3. Name: `calendar-reader`
+4. Click **Create and Continue**
+5. **Role selection**:
+   - If AI only needs to **read** calendar → **Viewer**
+   - If AI needs to **create/edit** events → **Editor**
+6. Click **Done**
 
-**For creating/editing events, upgrade later:**
-- `https://www.googleapis.com/auth/calendar` - Full calendar control
-- `https://www.googleapis.com/auth/tasks` - Full tasks control
+> 📌 **Permission note**: The IAM role selected here controls the Service Account's access to Google Cloud resources. If you need AI to create events later, choose the **Editor** role.
 
-> 💡 **Real experience**: I started with `calendar.readonly`, then found I needed to create tasks through the AI assistant, so I upgraded to `calendar` and `tasks` permissions.
+#### 3.2 Create Key
 
-Setup steps:
-1. **Add or remove scopes** → Add the URLs above
-2. Click **Update** → **Save and Continue**
-3. **Test users** → **Add users** → Enter your Gmail address
-4. Click **Save and Continue** → **Back to dashboard**
-
-#### Step 5: Create OAuth Client ID
-
-1. **Credentials** → **Create credentials** → **OAuth client ID**
-2. Application type: **Desktop app**
-3. Name: `OpenClaw Desktop`
-4. Click **Create**
-5. Download JSON file, rename to `client_secret.json`
-
-#### Step 6: Place Credential Files
+1. Click the Service Account you just created → **Keys** tab
+2. **Add Key** → **Create new key** → **JSON**
+3. Download and save as `service-account.json`
+4. Move to config directory:
 
 ```bash
 mkdir -p ~/.config/google-calendar
-cp ~/Downloads/client_secret.json ~/.config/google-calendar/
-chmod 600 ~/.config/google-calendar/client_secret.json
+cp ~/Downloads/service-account.json ~/.config/google-calendar/
+chmod 600 ~/.config/google-calendar/service-account.json
 ```
 
-#### Step 7: Python Code - Read Calendar
+#### 3.3 Share Calendar with Service Account
+
+**Critical step**: Service Account cannot automatically access your calendar; you must explicitly share it.
+
+1. Open [Google Calendar](https://calendar.google.com)
+2. Left side find the calendar to sync → Click **⋮** → **Settings and sharing**
+3. **Share with specific people** → **Add people**
+4. Enter Service Account email (like `calendar-reader@ai-schedule-demo.iam.gserviceaccount.com`)
+5. **Permission selection**:
+   - **See all event details** - AI can only read
+   - **Make changes to events** - AI can create and edit events
+
+> ⚠️ **Common error**: If you forget to share the calendar, or set permission to "See only free/busy," the API returns empty list or 403 error.
+
+#### 3.4 Python Code - Read Calendar
 
 Create `google_calendar.py`:
 
 ```python
 #!/usr/bin/env python3
-"""Google Calendar Reader - OAuth Method"""
+"""Google Calendar Reader - Service Account Method"""
 
 import os
-import pickle
 from datetime import datetime, timedelta
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# OAuth config - read-only permission
+# Service Account config
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-CLIENT_SECRET_FILE = os.path.expanduser('~/.config/google-calendar/client_secret.json')
-TOKEN_FILE = os.path.expanduser('~/.config/google-calendar/token.json')
-
-def get_credentials():
-    """Get OAuth credentials, first run requires browser authorization"""
-    creds = None
-    
-    # Load saved token
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, 'rb') as token:
-            creds = pickle.load(token)
-    
-    # If no valid credentials, need authorization
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            if not os.path.exists(CLIENT_SECRET_FILE):
-                print("❌ client_secret.json not found")
-                return None
-            
-            flow = InstalledAppFlow.from_client_secrets_file(
-                CLIENT_SECRET_FILE, SCOPES)
-            
-            # For headless environments (e.g., servers), use manual authorization
-            auth_url, _ = flow.authorization_url(prompt='consent')
-            print(f"Please visit this URL to authorize:\n{auth_url}\n")
-            code = input("Enter authorization code: ")
-            flow.fetch_token(code=code)
-            creds = flow.credentials
-        
-        # Save token
-        os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
-        with open(TOKEN_FILE, 'wb') as token:
-            pickle.dump(creds, token)
-    
-    return creds
+SERVICE_ACCOUNT_FILE = os.path.expanduser('~/.config/google-calendar/service-account.json')
+CALENDAR_ID = 'primary'  # Primary calendar, or shared calendar ID
 
 def get_today_events():
     """Get today's events"""
+    if not os.path.exists(SERVICE_ACCOUNT_FILE):
+        return "   ⚠️ Service Account not configured"
+    
     try:
-        creds = get_credentials()
-        if not creds:
-            return "   ⚠️ Not authorized"
-        
+        creds = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         service = build('calendar', 'v3', credentials=creds)
         
-        # Get today's time range
+        # Today's time range
         now = datetime.now()
         start = now.replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
         end = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
         
         events_result = service.events().list(
-            calendarId='primary',  # Primary calendar
+            calendarId=CALENDAR_ID,
             timeMin=start,
             timeMax=end,
             singleEvents=True,
@@ -213,7 +177,7 @@ def get_today_events():
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
             if 'T' in start:
-                time_str = start[11:16]  # Extract HH:MM
+                time_str = start[11:16]
             else:
                 time_str = 'All day'
             lines.append(f"   • {time_str} {event['summary']}")
@@ -221,21 +185,61 @@ def get_today_events():
         return '\n'.join(lines)
         
     except Exception as e:
-        return f"   ⚠️ Failed: {str(e)[:40]}"
+        return f"   ⚠️ Failed: {str(e)[:50]}"
 
 if __name__ == '__main__':
     print("📅 **Today's Schedule**")
     print(get_today_events())
 ```
 
-**First run requires authorization:**
+---
+
+### Step 4: Configure Task Access (OAuth)
+
+Google Tasks cannot be shared like calendars; you must use OAuth to access your personal task list.
+
+#### 4.1 Configure OAuth Consent Screen
+
+1. Left menu → **APIs & Services** → **OAuth consent screen**
+2. User type: **External** (for personal accounts)
+3. App name: `AI Schedule`
+4. User support email: Select your Gmail
+5. Developer contact info: Enter your email
+6. Click **Save and Continue**
+
+#### 4.2 Add API Scopes
+
+**Add Tasks permissions** (choose based on needs):
+
+**Read-only:**
+- `https://www.googleapis.com/auth/tasks.readonly` - Read tasks
+
+**Full permissions** (AI can create/complete tasks):
+- `https://www.googleapis.com/auth/tasks` - Full task control
+
+Setup steps:
+1. **Add or remove scopes** → Add the URL above
+2. Click **Update** → **Save and Continue**
+3. **Test users** → **Add users** → Enter your Gmail address
+4. Click **Save and Continue** → **Back to dashboard**
+
+> 📌 **Permission note**: With the above configuration, AI can only **read** tasks. If you need AI to **create** tasks later, use the `tasks` full permission and re-authorize.
+
+#### 4.3 Create OAuth Client ID
+
+1. **Credentials** → **Create credentials** → **OAuth client ID**
+2. Application type: **Desktop app**
+3. Name: `OpenClaw Desktop`
+4. Click **Create**
+5. Download JSON file, rename to `client_secret.json`
+6. Move to config directory:
+
 ```bash
-pip3 install --user google-auth-oauthlib google-api-python-client
-python3 google_calendar.py
-# Will show authorization URL, open in browser, copy code and paste
+cp ~/Downloads/client_secret.json ~/.config/google-calendar/
+chmod 600 ~/.config/google-calendar/client_secret.json
 ```
 
-#### Step 8: Python Code - Read Tasks
+#### 4.4 Python Code - Read Tasks
 
 Create `google_tasks.py`:
 
@@ -250,12 +254,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
+# OAuth config
 SCOPES = ['https://www.googleapis.com/auth/tasks.readonly']
 CLIENT_SECRET_FILE = os.path.expanduser('~/.config/google-calendar/client_secret.json')
 TOKEN_FILE = os.path.expanduser('~/.config/google-calendar/token.json')
 
 def get_credentials():
-    """Get OAuth credentials (reuse Calendar token)"""
+    """Get OAuth credentials, first run requires browser authorization"""
     creds = None
     
     if os.path.exists(TOKEN_FILE):
@@ -266,9 +271,22 @@ def get_credentials():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            print("❌ Please run calendar authorization first")
-            return None
+            if not os.path.exists(CLIENT_SECRET_FILE):
+                print("❌ client_secret.json not found")
+                return None
+            
+            flow = InstalledAppFlow.from_client_secrets_file(
+                CLIENT_SECRET_FILE, SCOPES)
+            
+            # For headless environments, use manual authorization
+            auth_url, _ = flow.authorization_url(prompt='consent')
+            print(f"Please visit this URL to authorize:\n{auth_url}\n")
+            code = input("Enter authorization code: ")
+            flow.fetch_token(code=code)
+            creds = flow.credentials
         
+        # Save token
+        os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
         with open(TOKEN_FILE, 'wb') as token:
             pickle.dump(creds, token)
     
@@ -283,7 +301,6 @@ def get_tasks():
         
         service = build('tasks', 'v1', credentials=creds)
         
-        # Get incomplete tasks from default list
         result = service.tasks().list(
             tasklist='@default',
             showCompleted=False,
@@ -301,8 +318,6 @@ def get_tasks():
         for task in tasks:
             title = task.get('title', 'Untitled')
             due = task.get('due', '')
-            
-            # Add prefix based on due date
             if due:
                 due_date = due[:10]
                 if due_date < today:
@@ -313,7 +328,6 @@ def get_tasks():
                     prefix = "   • "
             else:
                 prefix = "   • "
-            
             lines.append(f"{prefix}{title}")
         
         return '\n'.join(lines)
@@ -326,140 +340,86 @@ if __name__ == '__main__':
     print(get_tasks())
 ```
 
-#### Step 9: Upgrade Permissions (Optional)
-
-If you find you need the AI assistant to **create** events or tasks, upgrade permissions:
-
-1. Go back to [Google Cloud Console](https://console.cloud.google.com/)
-2. **APIs & Services** → **OAuth consent screen** → **Edit app**
-3. **Add or remove scopes**, add:
-   - `https://www.googleapis.com/auth/calendar` (full calendar permission)
-   - `https://www.googleapis.com/auth/tasks` (full tasks permission)
-4. Update `SCOPES` list in your code
-5. **Delete old token.json**, re-authorize
-
-> 💡 **My experience**: I started with read-only permissions, then needed to create tasks. After deleting the token and re-authorizing, it worked perfectly.
+**First run requires authorization:**
+```bash
+pip3 install --user google-auth-oauthlib google-api-python-client
+python3 google_tasks.py
+# Will show authorization URL, open in browser, copy code and paste
+```
 
 ---
 
-### Method 2: Service Account Authentication (For Shared Calendars)
+### Step 5: Integrate into Daily Brief
 
-Service Account is suitable for **shared calendars** or **enterprise scenarios**, no user interaction needed.
-
-#### Step 1: Create Service Account
-
-1. [Google Cloud Console](https://console.cloud.google.com/) → **IAM & Admin** → **Service Accounts**
-2. Click **Create Service Account**
-3. Name: `schedule-reader`
-4. Click **Create and Continue**
-5. Role: **Viewer** (or **Browser**)
-6. Click **Done**
-
-#### Step 2: Create Key
-
-1. Click the service account you just created → **Keys** tab
-2. **Add Key** → **Create new key** → **JSON**
-3. Download and save as `service-account.json`
-
-#### Step 3: Place Credentials
-
-```bash
-mkdir -p ~/.config/google-calendar
-cp ~/Downloads/service-account.json ~/.config/google-calendar/
-chmod 600 ~/.config/google-calendar/service-account.json
-```
-
-#### Step 4: Share Calendar (Critical Step)
-
-**Service Account cannot automatically access your calendar, you must explicitly share:**
-
-1. Open [Google Calendar](https://calendar.google.com)
-2. Left side find the calendar to sync → Click **⋮** → **Settings and sharing**
-3. **Share with specific people** → **Add people**
-4. Enter Service Account email (like `schedule-reader@ai-schedule-demo.iam.gserviceaccount.com`)
-5. Permission:
-   - **See all event details** (read-only)
-   - **Make changes to events** (if AI needs to create events)
-
-> ⚠️ **Common issue**: If you forget to share the calendar, it returns empty list or 404 error.
-
-#### Step 5: Python Code
+Integrate in `rss_news.py`:
 
 ```python
-#!/usr/bin/env python3
-"""Google Calendar - Service Account Method"""
-
-import os
-from datetime import datetime, timedelta
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-
-# Service Account config
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-SERVICE_ACCOUNT_FILE = os.path.expanduser('~/.config/google-calendar/service-account.json')
-
-def get_events():
-    """Get events"""
-    if not os.path.exists(SERVICE_ACCOUNT_FILE):
-        return "   ⚠️ Service Account not configured"
+def get_schedule_section():
+    """Get schedule section"""
+    # Calendar uses Service Account
+    from google_calendar import get_today_events
+    # Tasks uses OAuth
+    from google_tasks import get_tasks
     
-    try:
-        # Use Service Account credentials
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-        
-        service = build('calendar', 'v3', credentials=creds)
-        
-        # Note: Use the Calendar ID from when you shared the calendar
-        # For primary calendar, usually 'primary'
-        # For shared calendars, it's like 'xxx@group.calendar.google.com'
-        CALENDAR_ID = 'primary'
-        
-        now = datetime.now()
-        start = now.replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
-        end = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0).isoformat() + '+08:00'
-        
-        events_result = service.events().list(
-            calendarId=CALENDAR_ID,
-            timeMin=start,
-            timeMax=end,
-            singleEvents=True,
-            orderBy='startTime'
-        ).execute()
-        
-        events = events_result.get('items', [])
-        
-        if not events:
-            return "   • No events (check if calendar is shared with Service Account)"
-        
-        lines = []
-        for event in events:
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            if 'T' in start:
-                time_str = start[11:16]
-            else:
-                time_str = 'All day'
-            lines.append(f"   • {time_str} {event['summary']}")
-        
-        return '\n'.join(lines)
-        
-    except Exception as e:
-        return f"   ⚠️ Failed: {str(e)[:50]}"
-
-if __name__ == '__main__':
-    print("📅 **Today's Schedule** (Service Account)")
-    print(get_events())
+    lines = []
+    lines.append("📅 **Today's Schedule**")
+    lines.append(get_today_events())
+    lines.append("")
+    lines.append("📋 **To-Do Tasks**")
+    lines.append(get_tasks())
+    return '\n'.join(lines)
 ```
 
-#### Service Account vs OAuth Comparison
+---
 
-| Feature | Service Account | OAuth |
-|---------|-----------------|-------|
-| Access personal calendar | ❌ Needs explicit sharing | ✅ Direct access |
-| Access shared calendars | ✅ Suitable | ⚠️ Needs calendar owner authorization |
-| Automation level | ✅ No human intervention | ⚠️ First-time authorization required |
-| Permission granularity | Determined at sharing | Determined by OAuth scope |
-| Use case | Enterprise, team | Personal use |
+### Permission Upgrade: Let AI Create Events and Tasks
+
+With the above configuration, AI can only **read** events and tasks. If you need AI to **create** events or tasks, upgrade permissions:
+
+#### Upgrade Calendar Permissions (Service Account)
+
+**1. Modify IAM Role**
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → **IAM & Admin** → **IAM**
+2. Find Service Account → Click **Edit**
+3. Change role to: **Editor**
+4. Click **Save**
+
+**2. Ensure Calendar Sharing Permission is Correct**
+
+1. [Google Calendar](https://calendar.google.com) → Calendar settings
+2. Service Account permission must be **"Make changes to events"**
+
+**3. Update Code Scope**
+
+```python
+# From readonly to full permission
+SCOPES = ['https://www.googleapis.com/auth/calendar']
+```
+
+#### Upgrade Task Permissions (OAuth)
+
+**1. Modify Google Cloud Scopes**
+
+1. **APIs & Services** → **OAuth consent screen** → **Edit app**
+2. **Add or remove scopes**, change `tasks.readonly` to `tasks`
+3. Click **Update** → **Save**
+
+**2. Update Code Permissions**
+
+```python
+SCOPES = ['https://www.googleapis.com/auth/tasks']  # Remove .readonly
+```
+
+**3. Re-authorize**
+
+```bash
+rm ~/.config/google-calendar/token.json
+python3 google_tasks.py
+# Revisit authorization URL, get new authorization code
+```
+
+> 💡 **Real experience**: I started with read-only permissions. When I wanted AI to create tasks, I discovered I needed: (1) Correct Google Cloud scopes + (2) Correct code scope + (3) Re-authorization. After deleting token and re-authorizing, AI could create events for me.
 
 ---
 
@@ -819,43 +779,31 @@ if __name__ == '__main__':
 
 ---
 
-## Integration into AI Agent Daily Brief
-
-Regardless of which solution you choose, integrating into daily briefs is similar:
-
-```python
-# Add to rss_news.py
-
-def get_schedule():
-    # Call corresponding function based on chosen solution
-    # return get_google_calendar_events()  # Google
-    # return get_outlook_events()          # Outlook
-    # return get_notion_schedule()         # Notion
-    return get_markdown_schedule()         # Markdown
-
-# Use when generating brief
-lines.append("📅 **Today's Schedule**")
-lines.append(get_schedule())
-```
-
----
-
 ## Solution Comparison Summary
 
 ### Network Stability (China Environment)
 
 | Solution | Access Speed | Reliability | Notes |
 |----------|-------------|-------------|-------|
-| Google Calendar | ⚠️ Slow | ❌ Needs VPN | Calendar + Tasks dual functionality |
+| Google Calendar | ⚠️ Slow | ❌ Needs VPN | Calendar + Tasks dual functionality, AI can read/write |
 | Outlook/365 | ✅ Fast | ✅ Stable | Microsoft China CDN |
 | Notion | ✅ Fast | ✅ Stable | Flexible database |
 | Markdown | ✅ Local | ✅ Perfect | Completely offline |
+
+### AI Agent Autonomy Comparison
+
+| Solution | AI Can Read | AI Can Create | Setup Complexity |
+|----------|-------------|---------------|------------------|
+| **Google Calendar** | ✅ | ✅ | ⭐⭐⭐ Hybrid auth required |
+| **Outlook** | ✅ | ✅ | ⭐⭐ Azure config required |
+| **Notion** | ✅ | ✅ | ⭐ Simple API |
+| **Markdown** | ✅ | ✅ | ⭐ Local file operations |
 
 ### Recommended Choice
 
 **If you are...**
 
-- **Overseas user or can stably access Google** → Google Calendar (most features, Calendar + Tasks)
+- **Overseas user, need full Google ecosystem** → Google Calendar (Service Account for calendar + OAuth for tasks hybrid)
 - **Enterprise/student with Microsoft account** → Outlook (most stable in China)
 - **Already use Notion for everything** → Notion Database (all-in-one)
 - **Minimalist/privacy-first** → Markdown (simplest)
@@ -865,9 +813,10 @@ lines.append(get_schedule())
 ## Resources
 
 - [Google Calendar API Docs](https://developers.google.com/calendar/api/guides/overview)
+- [Google Tasks API Docs](https://developers.google.com/tasks/reference/rest)
 - [Microsoft Graph API Calendar Docs](https://docs.microsoft.com/en-us/graph/api/resources/calendar)
 - [Notion API Docs](https://developers.notion.com/)
 
 ---
 
-*Choose the solution that fits you best, and let your AI assistant truly become your productivity assistant.*
+*Choose the solution that fits you best, and evolve your AI assistant from "can only answer" to "can proactively help manage your time."*

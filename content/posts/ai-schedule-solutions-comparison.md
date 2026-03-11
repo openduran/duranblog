@@ -1,7 +1,7 @@
 ---
 title: "AI 助手日程管理方案全对比：Google、Outlook、Notion 与本地方案"
 date: 2026-03-10T14:00:00+08:00
-draft: true
+draft: false
 tags: ["schedule", "calendar", "productivity", "ai-agent", "tutorial"]
 categories: ["教程"]
 description: "全面对比 AI 助手可用的日程管理方案：Google Calendar、Microsoft Outlook、Notion 和本地 Markdown。基于实际部署经验，包含完整的配置流程和权限问题解决方案。"

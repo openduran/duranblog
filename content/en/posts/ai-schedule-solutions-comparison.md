@@ -815,7 +815,7 @@ if __name__ == '__main__':
 - [Google Calendar API Docs](https://developers.google.com/calendar/api/guides/overview)
 - [Google Tasks API Docs](https://developers.google.com/tasks/reference/rest)
 - [Microsoft Graph API Calendar Docs](https://docs.microsoft.com/en-us/graph/api/resources/calendar)
-- [Notion API Docs](https://developers.notion.com/)
+- [Notion API Docs](https://developers.notion.com/reference/intro)
 
 ---
 

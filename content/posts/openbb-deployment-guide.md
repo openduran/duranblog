@@ -344,17 +344,6 @@ if __name__ == '__main__':
 }
 ```
 
-### 保留 TwelveData 备用
-
-建议观察 1-2 周，确认 OpenBB 稳定后再删除 TwelveData 配置：
-
-```bash
-# 保留的 TwelveData 文件
-~/.openclaw/workspace/stock_analysis.py        # 原分析脚本
-~/.openclaw/workspace/twelve_data.py           # API 封装
-~/.openclaw/.env                               # API Key
-```
-
 ---
 
 ## 数据对比：OpenBB vs TwelveData
@@ -467,12 +456,6 @@ OpenBB 是一个强大的开源金融数据平台，特别适合：
 - ✅ **宏观经济**：OECD、FRED 等数据源
 - ✅ **自托管**：数据自主可控
 - ✅ **AI 集成**：MCP Server 支持
-
-**建议部署策略**：
-1. 使用 OpenBB 作为主要数据源
-2. 保留 TwelveData 作为备用
-3. 配置 FRED API Key 获取美国宏观数据
-4. 观察 1-2 周后清理 TwelveData
 
 ---
 

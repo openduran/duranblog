@@ -1,7 +1,7 @@
 ---
 title: "使用 OpenBB 构建开源金融数据平台：替代商业 API 的完整指南"
 date: 2026-03-13T19:00:00+08:00
-draft: true
+draft: false
 tags: ["openbb", "finance", "stock", "python", "tutorial", "open-source"]
 categories: ["教程"]
 description: "详细介绍如何部署 OpenBB 开源金融数据平台，替代 TwelveData 等商业 API，支持股票、加密货币、宏观经济数据获取，以及与 OpenClaw 的集成方案。"

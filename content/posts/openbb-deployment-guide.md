@@ -174,8 +174,6 @@ except Exception as e:
     print(f"失业率数据获取失败: {e}")
 ```
 
-**注意**：OECD 数据源仅支持成员国，不包含台湾、中国大陆等地区。
-
 ---
 
 ## 构建股票分析脚本
@@ -327,7 +325,7 @@ if __name__ == '__main__':
 
 ```json
 {
-  "id": "bbe2258c-d26f-4759-be4a-29c72e430640",
+  "id": "your-job-id-here",
   "name": "每日股票分析-8:30",
   "enabled": true,
   "schedule": {
@@ -341,7 +339,7 @@ if __name__ == '__main__':
   },
   "delivery": {
     "mode": "announce",
-    "to": "discord:1466785049058869284"
+    "to": "discord:YOUR_CHANNEL_ID"
   }
 }
 ```
@@ -386,21 +384,70 @@ if __name__ == '__main__':
 
 ---
 
+## OpenBB 的其他使用场景
+
+除了与 OpenClaw 等 AI 智能体集成外，OpenBB 还适用于以下场景：
+
+### 1. 量化交易策略开发
+- **回测框架**：使用历史数据测试交易策略
+- **实时信号**：基于技术指标生成交易信号
+- **投资组合优化**：计算最优资产配置
+
+```python
+from openbb import obb
+import pandas as pd
+
+# 获取多只股票数据构建投资组合
+symbols = ['AAPL', 'MSFT', 'GOOGL']
+data = {}
+for sym in symbols:
+    output = obb.equity.price.historical(sym, limit=252)  # 一年数据
+    data[sym] = output.to_dataframe()['close']
+
+# 计算相关性矩阵
+df = pd.DataFrame(data)
+correlation = df.corr()
+print(correlation)
+```
+
+### 2. 学术研究与数据分析
+- **经济论文**：获取宏观经济数据进行实证分析
+- **金融研究**：股票收益分布、波动性分析
+- **数据科学**：机器学习模型训练数据
+
+### 3. 个人理财与投资跟踪
+- **投资组合监控**：实时跟踪持仓表现
+- **资产配置分析**：股债配比、行业分布
+- **风险评估**：VaR、最大回撤计算
+
+### 4. 企业财务分析
+- **竞品分析**：获取上市公司财报数据
+- **行业研究**：行业趋势、市场份额分析
+- **风险监控**：供应链风险、汇率风险
+
+### 5. 教育与培训
+- **金融课程**：为学生提供免费数据源
+- **编程教学**：Python 金融数据分析实战
+- **案例研究**：真实市场数据案例
+
+### 6. 新闻与内容创作
+- **财经自媒体**：获取数据支撑观点
+- **市场评论**：基于数据的分析报告
+- **数据新闻**：可视化市场趋势
+
+---
+
 ## 常见问题
 
-### Q1: OpenBB 支持台湾股票吗？
-
-**A**: yfinance 支持部分台湾股票（如台积电 TSM），但可能不够完整。对于台湾本土股票，建议保留 TwelveData 作为补充。
-
-### Q2: 为什么有些数据源需要 API Key？
+### Q1: 为什么有些数据源需要 API Key？
 
 **A**: 高质量的数据源（如 FRED、Alpha Vantage）需要注册获取 API Key，但通常有免费额度。这是为了控制访问频率和追踪使用情况。
 
-### Q3: OpenBB 可以获取实时数据吗？
+### Q2: OpenBB 可以获取实时数据吗？
 
 **A**: yfinance 提供的是延迟数据（通常 15-20 分钟）。如需实时数据，需要配置付费数据源（如 Polygon.io、Tradier）。
 
-### Q4: 如何扩展数据源？
+### Q3: 如何扩展数据源？
 
 **A**: OpenBB 支持插件扩展，可以通过 pip 安装额外的数据源包：
 

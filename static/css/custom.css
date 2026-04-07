@@ -1,0 +1,25 @@
+/* Custom styles for iframe video embeds */
+.post-content iframe {
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+  position: relative !important;
+}
+
+.post-content div:has(iframe) {
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+
+/* Ensure video containers are clickable */
+.video-container,
+.post-content iframe[src*="youtube"],
+.post-content iframe[src*="youtu.be"] {
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+}
+
+/* Remove any overlay that might block clicks */
+.post-content::before,
+.post-content::after {
+  pointer-events: none !important;
+}

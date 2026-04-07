@@ -84,6 +84,9 @@ theme = 'PaperMod'
   # Enable comments by default
   comments = true
   
+  # Custom CSS
+  customCSS = ["css/custom.css"]
+  
   # Google Analytics 4
   [params.analytics.google]
     measurementID = 'G-C6NHK7FMZ7'
@@ -143,3 +146,9 @@ theme = 'PaperMod'
 
 # SEO: Enable robots.txt
 enableRobotsTXT = true
+
+# Allow raw HTML (iframe, etc.)
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true

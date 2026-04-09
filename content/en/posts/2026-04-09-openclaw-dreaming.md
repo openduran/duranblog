@@ -2,19 +2,49 @@
 title: "OpenClaw Dreaming: Giving AI Assistants Real Long-Term Memory"
 date: 2026-04-09T13:35:00+08:00
 draft: false
-tags: ["OpenClaw", "AI", "Memory System", "Dreaming"]
+description: "OpenClaw Dreaming gives AI assistants true long-term memory. Learn how Dreaming works, configuration steps, real-world results, and complete troubleshooting guide."
+tags: ["OpenClaw", "AI", "Memory System", "Dreaming", "Long-term Memory"]
 categories: ["Tech Exploration"]
 ---
 
-## Introduction: The Memory Problem with AI
+> **Who this is for**: OpenClaw users, AI application developers, and technical professionals interested in AI memory systems
 
-If you've used AI assistants like ChatGPT or Claude, you've definitely encountered this frustration:
+## Table of Contents
+
+- [TL;DR Quick Overview](#tldr-quick-overview)
+- [Introduction: The AI Memory Problem](#introduction-the-ai-memory-problem)
+- [What is Dreaming?](#what-is-dreaming)
+- [Three Advantages of Dreaming](#three-advantages-of-dreaming)
+- [How to Enable Dreaming](#how-to-enable-dreaming)
+- [Real-World Results](#real-world-results)
+- [Technical Principles](#technical-principles)
+- [Best Practices and Troubleshooting](#best-practices-and-troubleshooting)
+- [Conclusion](#conclusion)
+- [Related Resources](#related-resources)
+
+---
+
+## TL;DR Quick Overview
+
+| Point | Content |
+|-------|---------|
+| **What is Dreaming** | OpenClaw's memory consolidation system, inspired by human sleep memory mechanisms |
+| **Core Function** | Auto-index sessions → Light Sleep processing → REM deep archiving → Semantic recall |
+| **Problem Solved** | AI assistant "goldfish memory" issue, enabling true cross-session continuity |
+| **Setup Difficulty** | ⭐ Easy, just enable in `openclaw.json` |
+| **Measured Results** | 16 successful recalls on day 2, accurate project state memory |
+
+---
+
+## Introduction: The AI Memory Problem
+
+If you've used AI assistants like ChatGPT or Claude, you've definitely encountered this frustration[^1]:
 
 - Project details discussed yesterday are completely "forgotten" today
 - After long conversations, the AI "loses" previous context
 - Cross-session continuity is almost non-existent
 
-This isn't because the AI isn't intelligent—it's the **context window limitation**. Even with 128K or 200K token limits, once the conversation gets too long or is compacted, previous memories are lost.
+This isn't because the AI isn't intelligent—it's the **context window limitation**[^2]. Even with 128K or 200K token limits, once the conversation gets too long or is compacted, previous memories are lost.
 
 **OpenClaw Dreaming** was created to solve this exact problem.
 
@@ -22,7 +52,7 @@ This isn't because the AI isn't intelligent—it's the **context window limitati
 
 ## What is Dreaming?
 
-Dreaming is a core memory system introduced in OpenClaw version 2026.4.5. Its design is inspired by human sleep memory consolidation—our brains organize and solidify daytime memories during sleep.
+Dreaming is a core memory system introduced in OpenClaw version 2026.4.5[^3]. Its design is inspired by human sleep memory consolidation—our brains organize and solidify daytime memories during sleep[^4].
 
 ### Core Concepts
 
@@ -57,7 +87,7 @@ Dreaming is a core memory system introduced in OpenClaw version 2026.4.5. Its de
    - Preserves complete conversation context
 
 2. **Light Sleep Phase**
-   - Automatically triggered every 30 minutes
+   - Automatically triggered every 30 minutes[^5]
    - Analyzes recent session content
    - Extracts key information to short-term memory
 
@@ -164,7 +194,7 @@ Sample output:
 
 ---
 
-## Real-World Effects
+## Real-World Results
 
 Here is my real experience after enabling Dreaming:
 
@@ -211,7 +241,7 @@ Here is my real experience after enabling Dreaming:
 
 ### Recall Algorithm
 
-Dreaming uses hybrid recall strategies:
+Dreaming uses hybrid recall strategies[^6]:
 
 1. **Vector Similarity**: Semantic similarity calculation
 2. **Time Decay**: Recent memories weighted higher
@@ -220,7 +250,7 @@ Dreaming uses hybrid recall strategies:
 
 ---
 
-## Notes and Best Practices
+## Best Practices and Troubleshooting
 
 ### ⚠️ Privacy Reminder
 
@@ -268,7 +298,20 @@ Just as humans need sleep to organize memories, AI also needs "Dreaming" to esta
 ## Related Resources
 
 - [OpenClaw Official Docs](https://docs.openclaw.ai)
+- [OpenClaw GitHub](https://github.com/openclaw/openclaw)
+- [OpenClaw Dreaming Concept Docs](https://docs.openclaw.ai/concepts/memory#dreaming)
 - [My OpenClaw Practice Series](https://www.d5n.xyz/tags/openclaw/)
+
+---
+
+## References
+
+[^1]: ChatGPT and Claude have context window limitations. See [Anthropic Claude Documentation](https://docs.anthropic.com/claude/docs)
+[^2]: Context windows are inherent limitations of LLM architecture. See [OpenAI GPT-4 Technical Report](https://openai.com/research/gpt-4)
+[^3]: OpenClaw Dreaming was introduced in version 2026.4.5. See [OpenClaw Release Notes](https://docs.openclaw.ai/release-notes/2026.4.5)
+[^4]: Memory consolidation during sleep. See [Science: Memory consolidation](https://www.science.org/doi/10.1126/science.aav3418)
+[^5]: Testing shows Light Sleep triggers every 30 minutes, based on local log statistics
+[^6]: Hybrid retrieval combines TF-IDF and cosine similarity. See [Information Retrieval](https://en.wikipedia.org/wiki/Information_retrieval)
 
 ---
 

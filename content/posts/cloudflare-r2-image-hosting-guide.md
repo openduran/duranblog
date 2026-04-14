@@ -2,7 +2,7 @@
 title: "Cloudflare R2 图床完整指南：与其他方案的对比及配置教程"
 date: 2026-04-13T15:50:00+08:00
 draft: false
-author: "Warwick"
+author: "Duran"
 description: "Cloudflare R2 图床与其他图片服务的全面对比，包括成本、性能、易用性分析，以及 Hugo 博客的完整配置教程"
 keywords: ["Cloudflare R2", "图床", "博客图片", "Hugo 图片", "免费图床", "CDN 图片"]
 categories: ["技术教程"]

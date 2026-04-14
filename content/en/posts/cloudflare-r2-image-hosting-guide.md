@@ -2,7 +2,7 @@
 title: "Cloudflare R2 Image Hosting: A Complete Guide with Comparisons and Hugo Integration"
 date: 2026-04-13T15:50:00+08:00
 draft: false
-author: "Warwick"
+author: "Duran"
 description: "A comprehensive guide to Cloudflare R2 image hosting, comparing costs, performance, and ease of use against alternatives, plus a complete Hugo blog integration tutorial"
 keywords: ["Cloudflare R2", "image hosting", "blog images", "Hugo images", "free CDN", "static site"]
 categories: ["Tech Tutorials"]

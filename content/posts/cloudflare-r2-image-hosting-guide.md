@@ -7,6 +7,7 @@ description: "Cloudflare R2 图床与其他图片服务的全面对比，包括�
 keywords: ["Cloudflare R2", "图床", "博客图片", "Hugo 图片", "免费图床", "CDN 图片"]
 categories: ["技术教程"]
 tags: ["Cloudflare", "R2", "图床", "Hugo", "博客优化"]
+translationKey: "cloudflare-r2-image-hosting-guide"
 cover:
     image: "https://img.d5n.xyz/posts/2026/04/14/20260414-161540-21d6fcd1.png"
     alt: "Cloudflare R2 图床配置指南"

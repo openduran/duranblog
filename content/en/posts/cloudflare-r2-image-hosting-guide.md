@@ -7,6 +7,7 @@ description: "A comprehensive guide to Cloudflare R2 image hosting, comparing co
 keywords: ["Cloudflare R2", "image hosting", "blog images", "Hugo images", "free CDN", "static site"]
 categories: ["Tech Tutorials"]
 tags: ["Cloudflare", "R2", "image hosting", "Hugo", "blog optimization"]
+translationKey: "cloudflare-r2-image-hosting-guide"
 cover:
     image: "https://img.d5n.xyz/posts/2026/04/14/20260414-161540-21d6fcd1.png"
     alt: "Cloudflare R2 Hosting Guide"

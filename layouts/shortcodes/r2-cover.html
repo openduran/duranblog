@@ -1,0 +1,16 @@
+{{/* 
+  R2 封面图短代码（用于文章开头的大图）
+  用法: {{< r2-cover src="posts/2026/04/featured.jpg" alt="封面描述" >}}
+*/}}
+
+{{ $src := .Get "src" }}
+{{ $alt := .Get "alt" | default "" }}
+{{ $domain := "img.d5n.xyz" }}
+
+<div class="r2-cover-image">
+  <img 
+    src="https://{{ $domain }}/{{ $src }}" 
+    alt="{{ $alt }}"
+    style="width: 100%; height: auto; border-radius: 8px;"
+  />
+</div>

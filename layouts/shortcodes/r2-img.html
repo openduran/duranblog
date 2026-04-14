@@ -1,0 +1,23 @@
+{{/* 
+  R2 图片短代码
+  用法: {{< r2-img src="posts/2026/04/featured.jpg" alt="描述" >}}
+  或: {{< r2-img src="posts/2026/04/diagram.png" alt="架构图" caption="图1: 系统架构" >}}
+*/}}
+
+{{ $src := .Get "src" }}
+{{ $alt := .Get "alt" | default "" }}
+{{ $caption := .Get "caption" | default "" }}
+{{ $width := .Get "width" | default "" }}
+{{ $domain := "img.d5n.xyz" }}
+
+<figure{{ with $width }} style="max-width: {{ . }}"{{ end }}>
+  <img 
+    src="https://{{ $domain }}/{{ $src }}" 
+    alt="{{ $alt }}"
+    loading="lazy"
+    {{ with $width }}width="{{ . }}"{{ end }}
+  />
+  {{ with $caption }}
+  <figcaption>{{ . }}</figcaption>
+  {{ end }}
+</figure>

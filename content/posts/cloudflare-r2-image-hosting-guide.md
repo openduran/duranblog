@@ -11,7 +11,6 @@ translationKey: "cloudflare-r2-image-hosting-guide"
 cover:
     image: "https://img.d5n.xyz/posts/2026/04/14/20260414-161540-21d6fcd1.png"
     alt: "Cloudflare R2 图床配置指南"
-    caption: "Cloudflare R2 封面"
 ---
 
 ## 核心要点

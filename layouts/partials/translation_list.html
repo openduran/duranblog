@@ -5,7 +5,7 @@
 <span>{{- i18n "translations" | default "Translations" }}:</span>
 <ul class="i18n_list">
     {{- range .AllTranslations }}
-    {{- if ne .Lang $.Lang }}
+    {{- if ne .RelPermalink $.RelPermalink }}
     <li>
         <a href="{{ .Permalink }}">
             {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}

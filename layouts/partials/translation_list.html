@@ -4,18 +4,29 @@
 {{- end -}}
 <span>{{- i18n "translations" | default "Translations" }}:</span>
 <ul class="i18n_list">
-    {{- range .AllTranslations }}
-    {{- if ne .RelPermalink $.RelPermalink }}
+    {{- $seen := dict -}}
+    {{- $currentPermalink := .Permalink -}}
+    {{- range .Translations -}}
+    {{- if not (index $seen .Permalink) -}}
+    {{- if ne .Permalink $currentPermalink -}}
+    {{- $seen = merge $seen (dict .Permalink true) -}}
+    {{- $lang := .Lang -}}
+    {{- if strings.Contains .RelPermalink "/en/" -}}
+    {{- $lang = "en" -}}
+    {{- else -}}
+    {{- $lang = "zh" -}}
+    {{- end -}}
     <li>
         <a href="{{ .Permalink }}">
-            {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}
+            {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) -}}
             {{- .Language.LanguageName | emojify -}}
-            {{- else }}
-            {{- .Lang | title -}}
+            {{- else -}}
+            {{- $lang | title -}}
             {{- end -}}
         </a>
     </li>
     {{- end -}}
-    {{- end }}
+    {{- end -}}
+    {{- end -}}
 </ul>
 {{- end -}}

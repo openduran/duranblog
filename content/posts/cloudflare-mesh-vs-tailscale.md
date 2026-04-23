@@ -10,7 +10,6 @@ tags: ["Cloudflare", "Tailscale", "网络安全", "组网", "Mesh", "WireGuard",
 cover:
     image: "https://developers.cloudflare.com/zt-preview.png"
     alt: "Cloudflare Mesh 与 Tailscale 网络架构对比"
-    caption: "Cloudflare Zero Trust 网络示意图"
 ---
 
 ## 核心要点

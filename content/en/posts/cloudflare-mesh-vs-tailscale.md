@@ -10,7 +10,6 @@ tags: ["Cloudflare", "Tailscale", "Network Security", "Mesh", "WireGuard", "Zero
 cover:
     image: "https://developers.cloudflare.com/zt-preview.png"
     alt: "Cloudflare Mesh vs Tailscale Architecture Comparison"
-    caption: "Cloudflare Zero Trust Network"
 ---
 
 ## Key Takeaways

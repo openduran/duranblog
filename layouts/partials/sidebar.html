@@ -1,0 +1,23 @@
+{{- if not (or (eq .Layout "search") (eq .Layout "archives")) -}}
+{{- $page := . -}}
+{{- $tagCloud := $page.Site.Taxonomies.tags -}}
+{{- if $tagCloud -}}
+{{- $topTags := first 15 $tagCloud.ByCount -}}
+<aside class="sidebar">
+    <div class="sidebar-widget">
+        <h3 class="sidebar-title">{{- if eq $page.Site.Language.Lang "zh" -}}热门标签{{- else -}}Popular Tags{{- end -}}</h3>
+        <div class="tag-cloud">
+            {{- range $topTags -}}
+            {{- $tagURL := printf "/tags/%s" (.Term | urlize) -}}
+            {{- if eq $page.Site.Language.Lang "en" -}}
+                {{- $tagURL = printf "/en/tags/%s" (.Term | urlize) -}}
+            {{- end -}}
+            <a href="{{ $tagURL | absURL }}" class="tag-link">
+                {{ .Term }}<span class="tag-count">{{ .Count }}</span>
+            </a>
+            {{- end -}}
+        </div>
+    </div>
+</aside>
+{{- end -}}
+{{- end -}}

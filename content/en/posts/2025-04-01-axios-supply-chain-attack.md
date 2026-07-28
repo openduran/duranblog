@@ -22,10 +22,10 @@ description: "Deep analysis of the March 2025 Axios npm supply chain attack affe
 | Item | Details |
 |------|---------|
 | **Date** | March 31, 2025 (Beijing Time) |
-| **Affected Packages** | axios@1.14.1, axios@0.30.4 |
+| **Affected Packages** | axios&#64;1.14.1, axios&#64;0.30.4 |
 | **Attack Type** | Supply Chain Poisoning + Remote Access Trojan (RAT) |
 | **Attack Vector** | Compromised maintainer account (jasonsaayman) |
-| **Malicious Dependency** | plain-crypto-js@4.2.1 |
+| **Malicious Dependency** | plain-crypto-js&#64;4.2.1 |
 | **C2 Server** | http://sfrclak[.]com:8000 |
 
 ---

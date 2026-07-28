@@ -22,10 +22,10 @@ description: "深度解析2025年3月Axios npm供应链投毒攻击事件，影�
 | 项目 | 详情 |
 |------|------|
 | **时间** | 2025年3月31日（北京时间） |
-| **受影响包** | axios&#64;1.14.1, axios&#64;0.30.4 |
+| **受影响包** | axios v1.14.1, axios v0.30.4 |
 | **攻击类型** | 供应链投毒 + 远程访问木马 (RAT) |
 | **入侵方式** | 维护者账号被盗（jasonsaayman） |
-| **恶意依赖** | plain-crypto-js&#64;4.2.1 |
+| **恶意依赖** | plain-crypto-js v4.2.1 |
 | **C2服务器** | http://sfrclak[.]com:8000 |
 
 ---
@@ -51,7 +51,7 @@ description: "深度解析2025年3月Axios npm供应链投毒攻击事件，影�
 - 版本号遵循 semver 规范，不会引起开发者警觉
 
 **第三步：隐形依赖**
-- 在 package.json 中注入 `plain-crypto-js@4.2.1` 作为依赖
+- 在 package.json 中注入 `plain-crypto-js v4.2.1` 作为依赖
 - 这个名字极具迷惑性——它冒充的是流行的 `crypto-js` 库
 
 **第四步：钩子触发**
@@ -157,7 +157,7 @@ netstat -an | grep -E "54\.243\.123\.|sfrclak"
 ```bash
 # 删除 node_modules 并重新安装（使用安全版本）
 rm -rf node_modules package-lock.json
-npm install axios@1.14.0  # 回退到安全版本
+npm install axios@1.14.0  # 回退到安全版本；正文中避免裸写包名加版本号
 
 # 检查并删除持久化后门
 # Linux:

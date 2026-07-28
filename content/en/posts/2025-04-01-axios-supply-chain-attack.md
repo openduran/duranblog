@@ -22,10 +22,10 @@ description: "Deep analysis of the March 2025 Axios npm supply chain attack affe
 | Item | Details |
 |------|---------|
 | **Date** | March 31, 2025 (Beijing Time) |
-| **Affected Packages** | axios&#64;1.14.1, axios&#64;0.30.4 |
+| **Affected Packages** | axios v1.14.1, axios v0.30.4 |
 | **Attack Type** | Supply Chain Poisoning + Remote Access Trojan (RAT) |
 | **Attack Vector** | Compromised maintainer account (jasonsaayman) |
-| **Malicious Dependency** | plain-crypto-js&#64;4.2.1 |
+| **Malicious Dependency** | plain-crypto-js v4.2.1 |
 | **C2 Server** | http://sfrclak[.]com:8000 |
 
 ---
@@ -51,7 +51,7 @@ This wasn't a crude hack—it was a carefully orchestrated "Trojan horse" operat
 - Version numbers followed semver conventions, raising no developer alarms
 
 **Step 3: Hidden Dependency Injection**
-- Injected `plain-crypto-js@4.2.1` as a dependency in package.json
+- Injected `plain-crypto-js v4.2.1` as a dependency in package.json
 - The name was highly deceptive—masquerading as the popular `crypto-js` library
 
 **Step 4: Hook Trigger**
@@ -157,7 +157,7 @@ netstat -an | grep -E "54\.243\.123\.|sfrclak"
 ```bash
 # Delete node_modules and reinstall (using safe version)
 rm -rf node_modules package-lock.json
-npm install axios@1.14.0  # Rollback to safe version
+npm install axios@1.14.0  # Roll back to a safe version; avoid bare package/version text in page copy
 
 # Check and remove persistent backdoors
 # Linux:

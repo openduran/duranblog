@@ -157,7 +157,7 @@ netstat -an | grep -E "54\.243\.123\.|sfrclak"
 ```bash
 # Delete node_modules and reinstall (using safe version)
 rm -rf node_modules package-lock.json
-npm install axios@1.14.0  # Roll back to a safe version; avoid bare package/version text in page copy
+npm install axios@SAFE_VERSION  # Roll back to a safe version; avoid bare package/version text in page copy
 
 # Check and remove persistent backdoors
 # Linux:

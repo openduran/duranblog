@@ -157,7 +157,7 @@ netstat -an | grep -E "54\.243\.123\.|sfrclak"
 ```bash
 # 删除 node_modules 并重新安装（使用安全版本）
 rm -rf node_modules package-lock.json
-npm install axios@1.14.0  # 回退到安全版本；正文中避免裸写包名加版本号
+npm install axios@SAFE_VERSION  # 回退到安全版本；正文中避免裸写包名加版本号
 
 # 检查并删除持久化后门
 # Linux:

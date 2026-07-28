@@ -185,7 +185,7 @@ tailscale status
 
 Example output:
 ```
-100.x.x.x   your-hostname      your@email.com   linux   -
+100.x.x.x   your-hostname      user.example.com   linux   -
 ```
 
 The **your-hostname** column is what you need.

@@ -242,7 +242,7 @@ def get_google_tasks():
 ```bash
 # Send email (note Chinese encoding)
 ~/.openclaw/workspace/send-email.sh \
-  bauhaushuang@hotmail.com \
+  user.example.com \
   'Test Email' \
   'This is the email content'
 ```

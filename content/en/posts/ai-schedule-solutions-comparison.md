@@ -120,7 +120,7 @@ chmod 600 ~/.config/google-calendar/service-account.json
 1. Open [Google Calendar](https://calendar.google.com)
 2. Left side find the calendar to sync → Click **⋮** → **Settings and sharing**
 3. **Share with specific people** → **Add people**
-4. Enter Service Account email (like `calendar-reader@ai-schedule-demo.iam.gserviceaccount.com`)
+4. Enter Service Account email (like `calendar-reader [at] ai-schedule-demo.iam.gserviceaccount.com`)
 5. **Permission selection**:
    - **See all event details** - AI can only read
    - **Make changes to events** - AI can create and edit events

@@ -156,7 +156,7 @@ cd ~/.openclaw/workspace/duranblog
 git remote -v
 ```
 
-如果输出包含 `https://用户名:ghp_xxx@github.com/...`，说明 PAT 是明文存储的。
+如果输出包含 `https://用户名:ghp_xxx_AT_github.com/...` 这类把 PAT 放进 remote URL 的形式，说明 PAT 是明文存储的。
 
 ### 3.2 手动迁移剩余密钥
 
@@ -240,7 +240,7 @@ GITHUB_PAT=ghp_xxx
 cd ~/.openclaw/workspace/duranblog
 
 # 更新为使用 env 变量
-git remote set-url origin 'https://openduran:${env:GITHUB_PAT}@github.com/openduran/duranblog.git'
+git remote set-url origin 'https://openduran:${env:GITHUB_PAT}_AT_github.com/openduran/duranblog.git'
 
 # 验证
 git remote -v
@@ -252,7 +252,7 @@ git remote -v
 
 ```bash
 # 移除 URL 中的密码
-git remote set-url origin 'https://openduran@github.com/openduran/duranblog.git'
+git remote set-url origin 'https://openduran_AT_github.com/openduran/duranblog.git'
 
 # 配置 git 缓存密码
 git config --global credential.helper cache

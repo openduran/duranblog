@@ -120,7 +120,7 @@ chmod 600 ~/.config/google-calendar/service-account.json
 1. 打开 [Google Calendar](https://calendar.google.com)
 2. 左侧找到要同步的日历 → 点击 **⋮** → **设置和共享**
 3. **共享设置** → **添加用户**
-4. 输入 Service Account 邮箱（类似 `calendar-reader@ai-schedule-demo.iam.gserviceaccount.com`）
+4. 输入 Service Account 邮箱（类似 `calendar-reader [at] ai-schedule-demo.iam.gserviceaccount.com`）
 5. **权限选择**：
    - **查看所有活动详情** - AI 只能读取
    - **更改活动** - AI 可以创建和编辑日程

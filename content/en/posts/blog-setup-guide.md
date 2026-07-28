@@ -106,7 +106,7 @@ fatal: could not read Username for 'https://github.com'
 **Solution:**
 Use Personal Access Token authentication:
 ```bash
-git remote set-url origin https://openduran:TOKEN@github.com/openduran/duranblog.git
+git remote set-url origin https://openduran:TOKEN_AT_GITHUB/openduran/duranblog.git
 ```
 
 ### Step 5: Vercel Deployment

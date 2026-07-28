@@ -262,7 +262,7 @@ tailscale status
 
 输出示例：
 ```
-100.x.x.x   your-hostname      your@email.com   linux   -
+100.x.x.x   your-hostname      user.example.com   linux   -
 ```
 **your-hostname** 就是你需要的主机名。
 

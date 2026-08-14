@@ -89,32 +89,41 @@
             
             {{- if (not site.Params.disableLangToggle) }}
                 {{- $lang := .Lang}}
-                {{- with site.Home.Translations }}
+                {{- $translations := .Translations -}}
+                {{- if not $translations -}}
+                    {{- $translations = site.Home.Translations -}}
+                {{- end -}}
+                {{- with $translations }}
                 <div class="lang-dropdown">
                     <button class="lang-dropdown-btn" aria-haspopup="true" aria-expanded="false">
-                        {{- if (and site.Params.displayFullLangName ($.Site.Language.LanguageName)) }}
-                            {{- $.Site.Language.LanguageName | emojify -}}
+                        {{- if eq $lang "zh" }}
+                            简体中文
                         {{- else }}
-                            {{- $.Site.Language.Lang | upper -}}
+                            English
                         {{- end -}}
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
                     <ul class="lang-dropdown-content">
+                        {{- $seen := dict -}}
+                        {{- $currentPermalink := $.Permalink -}}
                         {{- range . -}}
+                        {{- $targetLang := cond (strings.HasPrefix .RelPermalink "/en/") "en" "zh" -}}
+                        {{- if and (ne .Permalink $currentPermalink) (ne $targetLang $lang) (not (index $seen .Permalink)) -}}
+                        {{- $seen = merge $seen (dict .Permalink true) -}}
                         <li>
                             <a href="{{- .Permalink -}}" 
-                               title="{{ .Language.Params.languageAltTitle | default (.Language.LanguageName | emojify) | default (.Lang | title) }}"
-                               aria-label="{{ .Language.LanguageName | default (.Lang | title) }}"
-                               {{- if eq $lang .Lang }} class="active-lang" {{- end }}>
-                                {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}
-                                    {{- .Language.LanguageName | emojify -}}
+                               title="{{ if eq $targetLang "zh" }}简体中文{{ else }}English{{ end }}"
+                               aria-label="{{ if eq $targetLang "zh" }}简体中文{{ else }}English{{ end }}">
+                                {{- if eq $targetLang "zh" }}
+                                    简体中文
                                 {{- else }}
-                                    {{- .Lang | upper -}}
+                                    English
                                 {{- end -}}
                             </a>
                         </li>
+                        {{- end -}}
                         {{- end}}
                     </ul>
                 </div>

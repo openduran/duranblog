@@ -18,10 +18,10 @@
     {{- end -}}
     <li>
         <a href="{{ .Permalink }}">
-            {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) -}}
-            {{- .Language.LanguageName | emojify -}}
+            {{- if eq $lang "zh" -}}
+            简体中文
             {{- else -}}
-            {{- $lang | title -}}
+            English
             {{- end -}}
         </a>
     </li>
